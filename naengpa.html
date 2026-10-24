@@ -110,7 +110,7 @@ a { color: inherit; }
 .sub-btn:hover { color: var(--ink); }
 .sub-btn[aria-pressed="true"] { color: var(--ink); font-weight: 600; box-shadow: inset 0 -2px 0 var(--accent); }
 .sub-btn[aria-pressed="true"] span { color: var(--accent); font-weight: 500; }
-.more-nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; margin-top: 6px; }
+.more-nav { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; margin-top: 6px; }
 .more-nav button { display: flex; align-items: center; gap: 10px; min-width: 0; min-height: 58px; padding: 0 12px; border: 0; background: none; text-align: left; }
 .more-nav button + button { border-left: 1px solid var(--line); }
 .more-nav .mi { flex: none; width: 30px; height: 30px; border-radius: 8px; background: var(--seg); color: var(--chip-ink); display: flex; align-items: center; justify-content: center; }
@@ -166,6 +166,38 @@ a { color: inherit; }
 .ichip .q { flex: none; font-size: 12px; color: var(--mute); white-space: nowrap; }
 .ichip .sep { flex: none; width: 1px; height: 12px; background: var(--line); }
 .ichip .d { flex: none; font-size: 12px; white-space: nowrap; }
+button.ichip { font: inherit; color: inherit; cursor: pointer; text-align: left; }
+button.ichip:active, button.row:active, .idea:active { background: var(--hair); }
+
+/* Ideas (one ingredient -> dishes) */
+.ing-head { display: flex; align-items: center; gap: 12px; padding: 12px 14px; }
+.ing-head .tile { width: 44px; height: 44px; }
+.ing-head .mid { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.ing-head .n { font-size: 16px; font-weight: 600; }
+.ing-head .l2 { display: flex; align-items: center; gap: 4px; font-size: 12.5px; color: var(--mute); }
+.idea { width: 100%; display: flex; align-items: center; gap: 12px; padding: 14px; border: 0; background: none; text-align: left; font: inherit; color: inherit; }
+.idea + .idea { border-top: 1px solid var(--hair); }
+.idea .mid { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.idea .nm { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+.idea .nm b { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.idea .nm small { flex: none; font-size: 12px; color: var(--mute); }
+.idea .x { font-size: 13px; line-height: 1.5; color: var(--chip-ink); }
+.idea .ings { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-size: 12px; color: var(--mute); }
+.idea .ings span { display: inline-flex; align-items: center; gap: 3px; }
+.idea .ings .lead { color: var(--faint); }
+.sk { display: block; height: 11px; border-radius: 6px; background: var(--seg); animation: pulse 1.3s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: .45; } }
+.morebtn { align-self: center; display: inline-flex; align-items: center; gap: 6px; height: 40px; padding: 0 16px; border: 1px solid var(--line); border-radius: 20px; background: var(--card); font: inherit; font-size: 13.5px; color: var(--chip-ink); }
+.morebtn[disabled] { opacity: .5; }
+
+/* Meals (what I cooked) */
+.meal .stack-ico { flex: none; display: flex; width: 52px; }
+.meal .bub { width: 30px; height: 30px; border-radius: 15px; background: var(--tile); box-shadow: 0 0 0 2px var(--card); display: flex; align-items: center; justify-content: center; }
+.meal .bub + .bub { margin-left: -8px; }
+.meal .kc { flex: none; font-size: 12px; color: var(--mute); }
+.meal .del { flex: none; width: 30px; height: 30px; border: 0; border-radius: 15px; background: none; color: var(--faint); display: flex; align-items: center; justify-content: center; padding: 0; }
+.meal-sum { display: flex; gap: 16px; padding: 0 4px; font-size: 13px; color: var(--sub); }
+.meal-sum strong { color: var(--ink); font-weight: 600; }
 
 /* Rows (search, recipe) */
 .rows { overflow: hidden; }
@@ -273,7 +305,8 @@ mark { background: transparent; color: var(--accent); font-weight: 700; }
 
 .banner { margin: 4px 0 10px; padding: 12px 14px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); font-size: 13px; line-height: 1.55; color: var(--sub); }
 .toast { position: fixed; left: 50%; bottom: calc(92px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 40; max-width: calc(100% - 32px); padding: 10px 16px; border-radius: 20px; background: var(--inv); color: var(--inv-ink); font-size: 13.5px; box-shadow: 0 6px 18px rgba(0,0,0,.18); }
-@media (prefers-reduced-motion: reduce) { .spin { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .spin, .sk { animation: none; } }
+@media (max-width: 440px) { .more-nav .mi { display: none; } .more-nav button { padding: 0 10px; } }
 </style>
 
 <div class="shell">
@@ -332,11 +365,27 @@ mark { background: transparent; color: var(--accent); font-weight: 700; }
 
   <section id="v-recipe" class="view" aria-label="레시피" hidden style="padding-bottom:160px">
     <header class="top">
-      <button class="back" data-go="home" aria-label="홈으로"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <button class="back" data-act="recipe-back" aria-label="뒤로"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
       <h1 id="recipe-title">레시피</h1>
       <button class="gbtn glass" data-act="dice" aria-label="다른 메뉴 추천"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="4"/><circle cx="8.6" cy="8.6" r="1.25" fill="currentColor" stroke="none"/><circle cx="15.4" cy="8.6" r="1.25" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.25" fill="currentColor" stroke="none"/><circle cx="8.6" cy="15.4" r="1.25" fill="currentColor" stroke="none"/><circle cx="15.4" cy="15.4" r="1.25" fill="currentColor" stroke="none"/></svg></button>
     </header>
     <div id="recipe-body" class="stack" style="gap:18px"></div>
+  </section>
+
+  <section id="v-ideas" class="view" aria-label="이 재료로 만들 요리" hidden style="padding-bottom:160px">
+    <header class="top">
+      <button class="back" data-act="ideas-back" aria-label="뒤로"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <h1 id="ideas-title">만들 수 있는 요리</h1>
+    </header>
+    <div id="ideas-body" class="stack" style="gap:14px"></div>
+  </section>
+
+  <section id="v-meals" class="view" aria-label="해먹은 요리" hidden style="padding-bottom:160px">
+    <header class="top">
+      <button class="back" data-go="home" aria-label="홈으로"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <h1>해먹은 요리</h1>
+    </header>
+    <div id="meals-body" class="stack" style="gap:16px"></div>
   </section>
 </div>
 
@@ -412,7 +461,8 @@ const toast = (t) => { const el = $('toast'); el.textContent = t; el.hidden = fa
 // ---------- state ----------
 const S = {
   view: 'home', items: [], itemsLoaded: false, months: {}, chat: [], live: null, busy: false,
-  allMode: 'cat', allSel: new Set(), q: '', f: null, recipe: null, recipeBusy: false, pendingImage: null,
+  allMode: 'cat', allSel: new Set(), q: '', f: null, recipe: null, recipeBusy: false, recipeFrom: 'home', pendingImage: null,
+  ideas: {}, ideaItem: null, meals: [], mealsLoaded: false, delArmed: null,
   db: null, sample: null, caps: null, ctl: null, clearArmed: false
 };
 const ERR = {
@@ -514,6 +564,10 @@ function subscribe() {
       render();
     }, () => {});
   }
+  S.db.doc('meals/log').onSnapshot((snap) => {
+    S.meals = snap.exists ? (snap.data().list || []) : [];
+    S.mealsLoaded = true; render();
+  }, () => {});
   S.db.doc('chat/main').onSnapshot((snap) => {
     S.chat = snap.exists ? (snap.data().messages || []) : [];
     if (S.view === 'chat') renderChat();
@@ -527,17 +581,17 @@ async function saveChat(msgs) {
 function showBanner(t) { const b = $('banner'); b.textContent = t; b.hidden = false; }
 
 // ---------- routing ----------
-const VIEWS = ['home', 'all', 'log', 'search', 'chat', 'recipe'];
+const VIEWS = ['home', 'all', 'log', 'search', 'chat', 'recipe', 'ideas', 'meals'];
 function go(v) { if (!VIEWS.includes(v)) v = 'home'; if (location.hash.slice(1) !== (v === 'home' ? '' : v)) { location.hash = v === 'home' ? '' : v; } else show(v); }
 function show(v) {
   S.view = v;
   for (const id of VIEWS) $('v-' + id).hidden = id !== v;
-  const composerOn = v === 'home' || v === 'all' || v === 'log' || v === 'chat' || v === 'recipe';
+  const composerOn = v === 'home' || v === 'all' || v === 'log' || v === 'chat' || v === 'recipe' || v === 'meals';
   $('composer').hidden = !composerOn || !S.sample;
   $('sugs').hidden = !(v === 'chat' || (v === 'recipe' && S.recipe)) || !S.sample;
   renderSugs();
   $('attach').hidden = !(composerOn && S.pendingImage);
-  $('msg').placeholder = v === 'log' ? '이번 달에 뭘 버렸는지 물어보세요' : v === 'chat' ? 'Claude에게 말하기' : v === 'recipe' ? '레시피에 대해 물어보세요' : '산 것, 먹은 것을 말해 주세요';
+  $('msg').placeholder = v === 'log' ? '이번 달에 뭘 버렸는지 물어보세요' : v === 'meals' ? '“어제 김치찌개 해먹었어”처럼 적어도 돼요' : v === 'chat' ? 'Claude에게 말하기' : v === 'recipe' ? '레시피에 대해 물어보세요' : '산 것, 먹은 것을 말해 주세요';
   syncSend();
   render();
   window.scrollTo(0, v === 'chat' ? document.body.scrollHeight : 0);
@@ -555,6 +609,8 @@ function render() {
   else if (v === 'search') renderSearch();
   else if (v === 'chat') renderChat();
   else if (v === 'recipe') renderRecipe();
+  else if (v === 'ideas') renderIdeas();
+  else if (v === 'meals') renderMeals();
 }
 function greet() {
   const h = new Date().getHours();
@@ -619,8 +675,10 @@ function renderHome() {
   h += '<nav class="more-nav" aria-label="더 보기">';
   h += '<button data-cat-all="1" data-go="all"><span class="mi"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="6.5" height="6.5" rx="1.6"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.6"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.6"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.6"/></svg></span><span class="t"><b>전체 재고</b><small>' + items.length + '개</small></span>' + CHEV + '</button>';
   h += '<button data-go="log"><span class="mi"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-2-1.5-2 1.5-2-1.5-2 1.5-2-1.5L6 21z"/><path d="M9 8h6M9 12h6M9 16h3"/></svg></span><span class="t"><b>기록</b><small>오늘 ' + todayCount + '건</small></span>' + CHEV + '</button>';
+  const weekMeals = S.meals.filter((m) => Date.now() - m.ts < 7 * 864e5).length;
+  h += '<button data-go="meals"><span class="mi"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h16a8 8 0 0 1-16 0z"/><path d="M3 20h18"/><path d="M9 8c-.8-1 .8-2 0-3M13 8c-.8-1 .8-2 0-3"/></svg></span><span class="t"><b>해먹은 요리</b><small>' + (weekMeals ? '이번 주 ' + weekMeals + '번' : '아직 없어요') + '</small></span>' + CHEV + '</button>';
   h += '</nav>';
-  if (S.dl) h += '<button class="backup" data-act="backup"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10.5l5 5 5-5M5 19.5h14"/></svg><span>백업 파일 받기</span><small>재고·기록·대화를 파일 하나로</small></button>';
+  if (S.dl) h += '<button class="backup" data-act="backup"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10.5l5 5 5-5M5 19.5h14"/></svg><span>백업 파일 받기</span><small>재고·기록·요리·대화를 파일 하나로</small></button>';
   el.innerHTML = h;
   fitGrid();
 }
@@ -677,7 +735,7 @@ function renderAll() {
     h += '<section class="group" aria-label="' + esc(g.name) + '"><div class="group-h">' + (g.loc ? locIcon(g.loc, 15) : '') + '<h2' + (g.red ? ' class="r"' : '') + '>' + esc(g.name) + '</h2><span>' + list.length + '</span></div><div class="chips">';
     for (const it of list) {
       const d = daysUntil(it.due);
-      h += '<span class="ichip" role="listitem" aria-label="' + esc(it.name + ', ' + (it.qty || '') + ', ' + (it.loc || '') + ', ' + dl(d)) + '"><span style="line-height:0">' + icon(iconOf(it), 18) + '</span><span class="n' + (d != null && d < 0 ? ' gone' : '') + '">' + esc(it.name) + '</span><span class="q">' + esc(it.qty || '') + '</span><span class="sep" aria-hidden="true"></span><span class="d ' + dcls(d) + '">' + ds(d) + '</span>' + (S.allMode === 'loc' ? '' : locIcon(it.loc, 13)) + '</span>';
+      h += '<button class="ichip" data-ing="' + esc(it.id) + '" aria-label="' + esc(it.name + ', ' + (it.qty || '') + ', ' + (it.loc || '') + ', ' + dl(d) + '. 이 재료로 만들 요리 보기') + '"><span style="line-height:0">' + icon(iconOf(it), 18) + '</span><span class="n' + (d != null && d < 0 ? ' gone' : '') + '">' + esc(it.name) + '</span><span class="q">' + esc(it.qty || '') + '</span><span class="sep" aria-hidden="true"></span><span class="d ' + dcls(d) + '">' + ds(d) + '</span>' + (S.allMode === 'loc' ? '' : locIcon(it.loc, 13)) + '</button>';
     }
     h += '</div></section>';
   }
@@ -740,7 +798,7 @@ function renderSearch() {
     const d = daysUntil(it.due);
     const k = q ? it.name.indexOf(q) : -1;
     const nm = k >= 0 ? esc(it.name.slice(0, k)) + '<mark>' + esc(q) + '</mark>' + esc(it.name.slice(k + q.length)) : esc(it.name);
-    h += '<div class="row"><span class="tile' + (d != null && d < 0 ? ' faded' : '') + '">' + icon(iconOf(it), 22) + '</span><span class="mid"><span class="l1"><span class="n">' + nm + '</span><span class="qchip">' + esc(it.qty || '') + '</span></span><span class="l2">' + locIcon(it.loc, 13) + esc(it.loc || '냉장') + (it.memo ? ', ' + esc(it.memo) : '') + (it.bought ? ', ' + mdText(it.bought) + ' 삼' : '') + '</span></span><span class="d ' + dcls(d) + '">' + dl(d) + '</span></div>';
+    h += '<button class="row" data-ing="' + esc(it.id) + '"><span class="tile' + (d != null && d < 0 ? ' faded' : '') + '">' + icon(iconOf(it), 22) + '</span><span class="mid"><span class="l1"><span class="n">' + nm + '</span><span class="qchip">' + esc(it.qty || '') + '</span></span><span class="l2">' + locIcon(it.loc, 13) + esc(it.loc || '냉장') + (it.memo ? ', ' + esc(it.memo) : '') + (it.bought ? ', ' + mdText(it.bought) + ' 삼' : '') + '</span></span><span class="d ' + dcls(d) + '">' + dl(d) + '</span></button>';
   }
   h += '</div></section>';
   el.innerHTML = h;
@@ -809,6 +867,12 @@ function inventoryText() {
   const lines = S.items.slice().sort((a, b) => sortKey(a) - sortKey(b)).map((it) => [it.id, it.name, it.memo || '', it.qty, it.loc, it.cat, it.due || '기한없음', it.bought || ''].join(' | '));
   return '오늘: ' + t + ' (' + WD[new Date().getDay()] + ')\n재고 (id | 이름 | 메모 | 남은 양 | 보관 | 종류 | 기한 | 산 날):\n' + (lines.length ? lines.join('\n') : '(비어 있음)');
 }
+function mealsText(days) {
+  const cut = Date.now() - (days || 14) * 864e5;
+  const list = S.meals.filter((m) => m.ts >= cut).sort((a, b) => b.ts - a.ts).slice(0, 20);
+  return '최근 ' + (days || 14) + '일 동안 해먹은 요리 (날짜 | 메뉴 | 쓴 재료):\n' + (list.length ? list.map((m) => [ymd(new Date(m.ts)), m.name, (m.uses || []).join(', ')].join(' | ')).join('\n') : '(없음)');
+}
+const AVOID = '최근에 해먹은 요리와 같은 메뉴는 고르지 말고, 최근 사흘 안에 먹은 것과 주재료나 조리법(볶음밥, 찌개, 면 등)이 겹치는 것도 되도록 피해.';
 const RULES = () => [
   '너는 한 사람의 냉장고·냉동실·실온 재고를 관리하는 도우미야. 이 페이지가 주는 도구로만 재고를 바꿀 수 있어. 한국어로 짧고 다정하게, 1~2문장으로 답해. 마크다운, 목록 기호, 이모지는 쓰지 마.',
   '',
@@ -821,10 +885,13 @@ const RULES = () => [
   '- 종류(cat): veg(채소와 과일, 해조류 포함), meat(고기와 해산물), dairy(계란, 두부, 유제품), grain(곡물, 면, 빵, 가루), ready(간편식, 캔·즉석·냉동 조리식품), side(반찬·김치, 피클·단무지 포함), snack(간식·디저트, 떡·케이크·쿠키 등), bake(베이킹 재료, 만드는 데 쓰는 것), sauce(소스와 양념, 잼·스프레드·피넛버터처럼 바르는 것 포함), etc(기타).',
   '- 아이콘(icon)은 다음 중 가장 가까운 것 하나: ' + ICON_NAMES.join(', ') + '. 맞는 게 없으면 비워 둬.',
   '- 지난 기록(언제 샀는지, 무엇을 버렸는지)은 findEvents로 찾아.',
-  '- 레시피를 물으면 재고에서 기한이 가까운 재료를 우선 써서 메뉴를 정하고, setRecipe로 레시피 화면에 띄워. 1인분 열량과 영양성분 추정치도 함께 넣어. 답은 한두 문장으로만.',
+  '- 레시피를 물으면 재고에서 기한이 가까운 재료를 우선 써서 메뉴를 정하고, setRecipe로 레시피 화면에 띄워. 1인분 열량과 영양성분 추정치도 함께 넣어. 답은 한두 문장으로만. ' + AVOID,
+  '- "김치찌개 해먹었어"처럼 요리를 해 먹었다고 하면 logMeal로 해먹은 요리에 남겨. 쓴 재료를 다 먹었거나 줄었다고 하면 updateItem도 함께 써.',
   '- "이 레시피"는 아래의 현재 레시피를 말해. 바꿔 달라고 하면(인분, 재료, 난이도 등) 고친 전체 레시피를 setRecipe로 다시 띄워. 단순한 질문(대체 재료, 불 세기 등)에는 말로만 답해.',
   '',
   inventoryText(),
+  '',
+  mealsText(14),
   '',
   S.recipe ? '현재 레시피: ' + JSON.stringify({ name: S.recipe.name, minutes: S.recipe.minutes, servings: S.recipe.servings, level: S.recipe.level, uses: S.recipe.uses.map((u) => ({ id: u.id, name: u.name, use: u.use, after: u.after })), pantry: S.recipe.pantry, steps: S.recipe.steps, kcal: S.recipe.kcal, nutrition: S.recipe.nutrition }) : '현재 레시피: 없음'
 ].join('\n');
@@ -908,7 +975,7 @@ function makeTools(ctx) {
         name: { type: 'string', description: '메뉴 이름' }, minutes: { type: 'number', description: '조리 시간(분)' }, servings: { type: 'string', description: '예: 1인분' }, level: { type: 'string', description: '쉬움/보통/어려움' },
         why: { type: 'string', description: '이 메뉴를 고른 이유 한 문장' },
         uses: { type: 'array', description: '재고에서 쓰는 재료만', items: { type: 'object', properties: { id: { type: 'string', description: '재고 id' }, use: { type: 'string', description: '쓰는 양만 짧게. 예: 1팩, 2개, 반 컵, 약간. 손질법이나 문장은 넣지 마' }, after: { type: 'string', description: '요리 후 남는 양. 예: 1팩, 반쯤. 다 쓰면 빈 문자열' } }, required: ['id', 'use'] } },
-        pantry: { type: 'string', description: '재고 밖의 기본 양념과 분량만 한 줄. 예: 소금 약간, 후추 약간. 이유나 설명은 넣지 마' },
+        pantry: { type: 'string', description: '재고 밖의 기본 양념과 분량만 한 줄. 예: 소금 약간, 후추 약간. 이유나 설명, 재고 id는 넣지 마' },
         steps: { type: 'array', items: { type: 'string' }, description: '만드는 법 단계' },
         kcal: { type: 'number', description: '1인분 열량 추정(kcal)' },
         nutrition: { type: 'object', description: '1인분 영양성분 추정', properties: { carbs: { type: 'number', description: '탄수화물 g' }, protein: { type: 'number', description: '단백질 g' }, fat: { type: 'number', description: '지방 g' }, sodium: { type: 'number', description: '나트륨 mg' } } }
@@ -918,6 +985,22 @@ function makeTools(ctx) {
         if (!r.steps.length) throw new Error('steps가 비어 있어요');
         S.recipe = r; ctx.recipe = r;
         return '레시피 화면에 띄웠어요.';
+      }
+    },
+    {
+      name: 'logMeal',
+      description: '사용자가 해 먹은 요리를 "해먹은 요리" 기록에 남긴다. 재고는 바꾸지 않는다.',
+      inputSchema: { type: 'object', properties: { name: { type: 'string', description: '요리 이름' }, date: { type: 'string', description: '먹은 날 YYYY-MM-DD, 오늘이면 비움' }, uses: { type: 'array', items: { type: 'string' }, description: '쓴 재료 이름들' } }, required: ['name'] },
+      execute: async (input) => {
+        const nm = String(input.name || '').trim().slice(0, 40);
+        if (!nm) throw new Error('요리 이름이 비어 있어요');
+        const d = parseYmd(String(input.date || ''));
+        const ts = d && ymd(d) !== todayStr() ? d.getTime() + 19 * 36e5 : Date.now();
+        const uses = (Array.isArray(input.uses) ? input.uses : []).map((x) => String(x).slice(0, 30)).slice(0, 8);
+        const icons = uses.map((u) => { const it = S.items.find((x) => x.name === u); return it ? iconOf(it) : null; }).filter(Boolean).slice(0, 2);
+        await addMeal({ name: nm, ts: ts, uses: uses, icons: icons, from: 'chat' });
+        ctx.status('해먹은 요리에 남기는 중…');
+        return { ok: true, logged: nm };
       }
     },
     {
@@ -1016,20 +1099,32 @@ function toRecipe(r) {
   const uses = (Array.isArray(r.uses) ? r.uses : []).map((u) => { const it = S.items.find((x) => x.id === String(u.id)); return it ? { id: it.id, name: it.name, icon: iconOf(it), due: it.due, use: short(u.use), after: short(u.after) } : null; }).filter(Boolean);
   const n = r.nutrition && typeof r.nutrition === 'object' ? r.nutrition : {};
   const num = (v) => { const x = Math.round(Number(v)); return isFinite(x) && x > 0 ? x : null; };
-  return { name: String(r.name || '오늘의 메뉴').slice(0, 40), minutes: Number(r.minutes) || null, servings: String(r.servings || '1인분'), level: String(r.level || ''), why: String(r.why || ''), uses: uses, pantry: String(r.pantry || ''), steps: (Array.isArray(r.steps) ? r.steps : []).map(String).slice(0, 12), kcal: num(r.kcal), nutrition: { carbs: num(n.carbs), protein: num(n.protein), fat: num(n.fat), sodium: num(n.sodium) }, cooked: false };
+  let pantry = String(r.pantry || '');
+  for (const it of S.items) if (it.id && pantry.includes(it.id)) pantry = pantry.split(it.id).join(it.name);
+  pantry = pantry.replace(/\(\s*id\s+([^)]*)\)/gi, '($1)').replace(/\s{2,}/g, ' ').trim();
+  return { name: String(r.name || '오늘의 메뉴').slice(0, 40), minutes: Number(r.minutes) || null, servings: String(r.servings || '1인분'), level: String(r.level || ''), why: String(r.why || ''), uses: uses, pantry: pantry, steps: (Array.isArray(r.steps) ? r.steps : []).map(String).slice(0, 12), kcal: num(r.kcal), nutrition: { carbs: num(n.carbs), protein: num(n.protein), fat: num(n.fat), sodium: num(n.sodium) }, cooked: false };
 }
 async function dice() {
   if (S.recipeBusy || !S.sample || !S.items.length) return;
-  S.recipeBusy = true; render();
+  if (S.view !== 'recipe') S.recipeFrom = 'home';
   const prev = S.recipe ? S.recipe.name : '';
+  const ask = S.recipeFrom === 'ideas' && S.ideaItem && S.items.find((x) => x.id === S.ideaItem)
+    ? (() => { const it = S.items.find((x) => x.id === S.ideaItem); return '"' + it.name + '"(id ' + it.id + ')를 꼭 쓰는 1인분 메뉴 하나를 골라 줘. 냉장고의 다른 재료도 함께 써.' + (prev ? ' 방금 본 "' + prev + '" 말고 다른 메뉴로.' : ''); })()
+    : '위 재고로 오늘 저녁 1인분 메뉴 하나를 골라 줘. 기한이 가까운 재료를 우선 써.' + (prev ? ' 방금 추천한 "' + prev + '" 말고 다른 메뉴로.' : '');
+  await genRecipe(ask);
+}
+async function genRecipe(ask) {
+  S.recipeBusy = true; S.recipe = null; render();
   try {
     const r = await S.sample.json([
       inventoryText(),
       '',
-      '위 재고로 오늘 저녁 1인분 메뉴 하나를 골라 줘. 기한이 가까운 재료를 우선 써. 집에 흔한 기본 양념(소금, 간장, 설탕, 식용유, 참기름, 마늘 등)은 있다고 봐도 돼.' + (prev ? ' 방금 추천한 "' + prev + '" 말고 다른 메뉴로.' : ''),
+      mealsText(14),
+      '',
+      ask + ' 집에 흔한 기본 양념(소금, 간장, 설탕, 식용유, 참기름, 마늘 등)은 있다고 봐도 돼. ' + AVOID,
       '다음 JSON 하나만 답해:',
       '{"name":"메뉴 이름","minutes":20,"servings":"1인분","level":"쉬움","why":"왜 이 메뉴인지 한 문장","uses":[{"id":"재고 id","use":"쓰는 양만 짧게, 예: 1팩","after":"남는 양, 다 쓰면 빈 문자열"}],"pantry":"재고 밖 기본 양념과 분량만, 예: 소금 약간, 후추 약간","steps":["단계 문장", "..."],"kcal":520,"nutrition":{"carbs":60,"protein":30,"fat":15,"sodium":900}}',
-      'use와 after에는 양만 쓰고 손질법은 steps에 써. kcal과 nutrition은 1인분 기준 추정치(g, 나트륨은 mg).'
+      'use와 after에는 양만 쓰고 손질법은 steps에 써. pantry에는 재고 id를 쓰지 마. kcal과 nutrition은 1인분 기준 추정치(g, 나트륨은 mg).'
     ].join('\n'), { cache: false });
     S.recipe = toRecipe(r);
   } catch (e) {
@@ -1038,8 +1133,137 @@ async function dice() {
   S.recipeBusy = false; render();
   if (S.view === 'recipe') show('recipe');
 }
+
+// ---------- ideas: one ingredient -> several dishes ----------
+async function genIdeas(id, more) {
+  const it = S.items.find((x) => x.id === id);
+  if (!it || !S.sample) return;
+  const cur = S.ideas[id] || { list: [] };
+  if (cur.busy) return;
+  S.ideas[id] = { list: more ? cur.list : [], busy: true, err: '' };
+  render();
+  const shown = more ? cur.list.map((x) => x.name) : [];
+  try {
+    const r = await S.sample.json([
+      inventoryText(),
+      '',
+      mealsText(14),
+      '',
+      '"' + it.name + '"(id ' + it.id + ')를 주재료로 만들 수 있는 1인분 요리를 5가지 골라 줘. 냉장고의 다른 재료를 적극 함께 쓰고, 기한이 가까운 재료가 있으면 우선 써. 집에 흔한 기본 양념은 있다고 봐도 돼.',
+      '국·찌개, 볶음, 면, 밥, 간단한 반찬처럼 조리법이 서로 겹치지 않게 다양하게. ' + AVOID + (shown.length ? ' 이미 보여준 ' + shown.join(', ') + ' 말고 새 메뉴로.' : ''),
+      '다음 JSON 하나만 답해:',
+      '{"ideas":[{"name":"메뉴 이름","minutes":15,"level":"쉬움","desc":"어떤 요리인지 한 문장, 20자 안팎","uses":["재고 id", "..."]}]}',
+      'uses에는 이 요리에 쓰는 재고 id를 모두 넣고, "' + it.id + '"를 꼭 포함해.'
+    ].join('\n'), { cache: false, modelTier: 'quick' });
+    const raw = r && Array.isArray(r.ideas) ? r.ideas : [];
+    const add = raw.map((x) => ({
+      name: String(x.name || '').trim().slice(0, 30), minutes: Number(x.minutes) || null, level: String(x.level || '').slice(0, 6), desc: String(x.desc || '').trim().slice(0, 60),
+      uses: [...new Set((Array.isArray(x.uses) ? x.uses : []).map(String))].filter((u) => S.items.some((y) => y.id === u))
+    })).filter((x) => x.name && !shown.includes(x.name)).slice(0, 5);
+    if (!add.length) throw { code: 'empty_completion' };
+    S.ideas[id] = { list: (more ? cur.list : []).concat(add), busy: false, err: '' };
+  } catch (e) {
+    S.ideas[id] = { list: more ? cur.list : [], busy: false, err: e && e.code === 'cancelled' ? '' : errText(e) };
+  }
+  render();
+}
+function openIdeas(id) {
+  const it = S.items.find((x) => x.id === id); if (!it) return;
+  S.ideaItem = id;
+  go('ideas');
+  if (!S.ideas[id] || (!S.ideas[id].list.length && !S.ideas[id].busy)) genIdeas(id);
+}
+function renderIdeas() {
+  const el = $('ideas-body');
+  const it = S.items.find((x) => x.id === S.ideaItem);
+  if (!it) { $('ideas-title').textContent = '만들 수 있는 요리'; el.innerHTML = '<div class="card empty"><b>재료를 찾지 못했어요</b><p>다 먹었거나 지워진 재료예요. 전체 재고에서 다른 재료를 눌러 보세요.</p></div>'; return; }
+  $('ideas-title').textContent = it.name + '(으)로';
+  const d = daysUntil(it.due);
+  let h = '<div class="card ing-head"><span class="tile' + (d != null && d < 0 ? ' faded' : '') + '">' + icon(iconOf(it), 28) + '</span><span class="mid"><span class="n">' + esc(it.name) + '</span><span class="l2">' + locIcon(it.loc, 12) + esc((it.loc || '냉장') + (it.qty ? ', ' + it.qty : '')) + '</span></span><span class="d ' + dcls(d) + '">' + dl(d) + '</span></div>';
+  if (!S.sample) { el.innerHTML = h + '<div class="card empty"><p>이 화면에서는 Claude를 부를 수 없어서 요리를 추천할 수 없어요.</p></div>'; return; }
+  const st = S.ideas[it.id] || { list: [], busy: false, err: '' };
+  h += '<section class="stack" style="gap:6px"><h2 class="h2">냉장고 재료로 만들 수 있는 요리</h2>';
+  if (st.list.length || st.busy) {
+    h += '<div class="card rows">';
+    st.list.forEach((x, i) => {
+      const ings = x.uses.map((u) => S.items.find((y) => y.id === u)).filter(Boolean);
+      const others = ings.filter((y) => y.id !== it.id);
+      h += '<button class="idea" data-idea="' + i + '"><span class="mid"><span class="nm"><b>' + esc(x.name) + '</b><small>' + esc([x.minutes ? x.minutes + '분' : '', x.level].filter(Boolean).join(', ')) + '</small></span>' + (x.desc ? '<span class="x">' + esc(x.desc) + '</span>' : '') + '<span class="ings">' + (others.length ? '<span class="lead">함께 쓰는 재료</span>' : '<span class="lead">다른 재료 없이</span>') + others.slice(0, 4).map((y) => '<span>' + icon(iconOf(y), 14) + esc(y.name) + '</span>').join('') + (others.length > 4 ? '<span>외 ' + (others.length - 4) + '</span>' : '') + '</span></span>' + CHEV + '</button>';
+    });
+    if (st.busy) for (let k = 0; k < (st.list.length ? 2 : 4); k++) h += '<div class="idea" aria-hidden="true"><span class="mid" style="gap:8px"><span class="sk" style="width:' + (40 + (k * 17) % 30) + '%;height:14px"></span><span class="sk" style="width:' + (62 + (k * 11) % 25) + '%"></span><span class="sk" style="width:38%"></span></span></div>';
+    h += '</div>';
+  }
+  if (st.err) h += '<div class="card empty"><p>' + esc(st.err) + '</p><div class="ex" style="flex-direction:row"><button class="pill acc" data-act="ideas-retry">다시 불러오기</button></div></div>';
+  h += '</section>';
+  if (st.busy && !st.list.length) h += '<p style="margin:0;text-align:center;font-size:12.5px;color:var(--mute)">냉장고를 보고 고르는 중…</p>';
+  if (st.list.length && !st.err) h += '<button class="morebtn" data-act="more-ideas"' + (st.busy ? ' disabled' : '') + '>' + (st.busy ? '더 찾는 중…' : '다른 요리 더 보기') + '</button>';
+  el.innerHTML = h;
+}
+function openIdea(i) {
+  const it = S.items.find((x) => x.id === S.ideaItem);
+  const st = it && S.ideas[it.id]; const x = st && st.list[i];
+  if (!x || S.recipeBusy) return;
+  S.recipeFrom = 'ideas';
+  go('recipe');
+  const names = x.uses.map((u) => { const y = S.items.find((z) => z.id === u); return y ? y.name + '(id ' + y.id + ')' : null; }).filter(Boolean);
+  genRecipe('"' + x.name + '" 1인분 레시피를 자세히 써 줘. ' + (x.desc ? '어떤 요리냐면: ' + x.desc + '. ' : '') + '냉장고에서 ' + names.join(', ') + '을(를) 써. name은 "' + x.name + '" 그대로.');
+}
+
+// ---------- meals (what I cooked) ----------
+async function addMeal(m) {
+  const meal = { id: uid(), ts: m.ts || Date.now(), name: String(m.name).slice(0, 40), uses: (m.uses || []).slice(0, 8), icons: (m.icons || []).slice(0, 2), kcal: m.kcal || null, from: m.from || 'recipe' };
+  await serial(async () => {
+    const ref = S.db.doc('meals/log');
+    const snap = await ref.get();
+    const list = snap.exists ? (snap.data().list || []).slice() : [];
+    list.push(meal);
+    list.sort((a, b) => a.ts - b.ts);
+    await ref.set({ list: list.slice(-300) });
+  });
+  return meal;
+}
+async function delMeal(id) {
+  await serial(async () => {
+    const ref = S.db.doc('meals/log');
+    const snap = await ref.get();
+    if (!snap.exists) return;
+    await ref.set({ list: (snap.data().list || []).filter((m) => m.id !== id) });
+  });
+}
+function renderMeals() {
+  const el = $('meals-body');
+  if (!S.mealsLoaded) { el.innerHTML = '<div class="card empty"><p>불러오는 중이에요.</p></div>'; return; }
+  const list = S.meals.slice().sort((a, b) => b.ts - a.ts);
+  if (!list.length) { el.innerHTML = '<div class="card empty"><b>아직 해먹은 요리가 없어요</b><p>레시피 화면에서 “다 만들었어요”를 누르거나, 아래 입력창에 “어제 김치찌개 해먹었어”처럼 적으면 여기에 쌓여요. 메뉴를 추천할 때 최근에 먹은 건 피해서 골라 드려요.</p></div>'; return; }
+  const wk = list.filter((m) => Date.now() - m.ts < 7 * 864e5).length;
+  const mo = list.filter((m) => Date.now() - m.ts < 30 * 864e5).length;
+  let h = '<div class="meal-sum"><span>이번 주 <strong>' + wk + '</strong>번</span><span>최근 30일 <strong>' + mo + '</strong>번</span></div>';
+  const days = [];
+  for (const m of list) { const k = ymd(new Date(m.ts)); let d = days.find((x) => x.k === k); if (!d) { d = { k: k, list: [] }; days.push(d); } d.list.push(m); }
+  for (const d of days.slice(0, 40)) {
+    const dt = parseYmd(d.k);
+    const diff = Math.round((parseYmd(todayStr()) - dt) / 864e5);
+    const title = diff <= 0 ? '오늘' : diff === 1 ? '어제' : diff < 7 ? diff + '일 전' : (dt.getMonth() + 1) + '월 ' + dt.getDate() + '일';
+    const stamp = (dt.getMonth() + 1) + '.' + dt.getDate() + ' ' + WD[dt.getDay()];
+    h += '<section class="stack" style="gap:6px"><h2 class="h2">' + esc(title) + (diff < 7 ? '<span style="font-weight:400;color:var(--faint)"> · ' + esc(stamp) + '</span>' : '') + '</h2><div class="card rows">';
+    for (const m of d.list) {
+      const ics = (m.icons && m.icons.length ? m.icons : ['rice']).slice(0, 2);
+      const armed = S.delArmed === m.id;
+      h += '<div class="row meal"><span class="stack-ico">' + ics.map((k) => '<span class="bub">' + icon(k, 18) + '</span>').join('') + '</span><span class="mid"><span class="l1"><span class="n">' + esc(m.name) + '</span></span><span class="l2">' + esc((m.uses || []).join(', ') || (m.from === 'chat' ? '대화로 남김' : '')) + '</span></span>' + (m.kcal ? '<span class="kc">' + m.kcal + 'kcal</span>' : '') + '<button class="del" data-act="del-meal" data-id="' + esc(m.id) + '" aria-label="' + esc(m.name) + (armed ? ' 지우기 확인' : ' 지우기') + '" style="' + (armed ? 'color:var(--red)' : '') + '"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>';
+    }
+    h += '</div></section>';
+  }
+  el.innerHTML = h;
+}
 function renderRecipe() {
   const r = S.recipe, el = $('recipe-body');
+  if (S.recipeBusy) {
+    $('recipe-title').textContent = '레시피';
+    let sk = '<div class="stack" style="gap:10px;padding:0 4px"><span class="sk" style="width:46%;height:22px"></span><span class="sk" style="width:90%"></span><span class="sk" style="width:70%"></span></div>';
+    sk += '<div class="card" style="padding:16px;display:flex;flex-direction:column;gap:12px">' + [80, 64, 72, 52].map((w) => '<span class="sk" style="width:' + w + '%"></span>').join('') + '</div>';
+    el.innerHTML = sk + '<p style="margin:0;text-align:center;font-size:12.5px;color:var(--mute)">레시피를 쓰는 중…</p>';
+    return;
+  }
   if (!r) { $('recipe-title').textContent = '레시피'; el.innerHTML = '<div class="card empty"><b>아직 고른 메뉴가 없어요</b><p>오른쪽 위 주사위를 누르면 지금 재고로 만들 수 있는 메뉴를 골라 드려요.</p></div>'; return; }
   $('recipe-title').textContent = r.name;
   let h = '<div class="stack" style="gap:10px;padding:0 4px"><div class="pills">' + [r.minutes ? r.minutes + '분' : '', r.servings, r.level].filter(Boolean).map((t) => '<span class="mpill">' + esc(t) + '</span>').join('') + '</div>' + (r.why ? '<p class="why">' + esc(r.why) + '</p>' : '') + '</div>';
@@ -1051,14 +1275,14 @@ function renderRecipe() {
   }
   if (r.uses.length) {
     h += '<section class="stack" style="gap:6px"><h2 class="h2">냉장고에서 쓰는 재료</h2><div class="card rows">';
-    for (const u of r.uses) { const d = daysUntil(u.due); h += '<div class="row"><span class="tile">' + icon(u.icon, 22) + '</span><span class="mid"><span class="l1"><span class="n">' + esc(u.name) + '</span></span><span class="l2">' + (u.after ? (u.use ? esc(u.use) + ' 쓰고 ' : '') + esc(u.after) + ' 남아요' : (u.use ? esc(u.use) + ', ' : '') + '다 써요') + '</span></span><span class="d ' + dcls(d) + '">' + dl(d) + '</span></div>'; }
+    for (const u of r.uses) { const d = daysUntil(u.due); const vague = /^(있음|많음|조금|약간)$/.test(u.after); h += '<div class="row"><span class="tile">' + icon(u.icon, 22) + '</span><span class="mid"><span class="l1"><span class="n">' + esc(u.name) + '</span></span><span class="l2">' + (vague ? (u.use ? esc(u.use) + ' 써요' : '조금 써요') : u.after ? (u.use ? esc(u.use) + ' 쓰고 ' : '') + esc(u.after) + ' 남아요' : (u.use ? esc(u.use) + ', ' : '') + '다 써요') + '</span></span><span class="d ' + dcls(d) + '">' + dl(d) + '</span></div>'; }
     h += '</div></section>';
   }
   if (r.pantry) h += '<section class="stack" style="gap:6px"><h2 class="h2">기본 양념</h2><p class="card para">' + esc(r.pantry) + '</p></section>';
   h += '</div><div class="col">';
   if (r.steps.length) h += '<section class="stack" style="gap:6px"><h2 class="h2">만드는 법</h2><ol class="card steps">' + r.steps.map((s, i) => '<li><span class="no">' + (i + 1) + '</span><span class="tx">' + esc(s) + '</span></li>').join('') + '</ol></section>';
-  const canCook = !r.cooked && r.uses.length;
-  h += '<div class="stack" style="gap:6px;margin-top:4px"><button class="pill acc" data-act="cooked" style="justify-content:center;min-height:48px;border-radius:24px;font-size:15px"' + (canCook ? '' : ' disabled') + '>' + (r.cooked ? '재고에 반영했어요' : '다 만들었어요') + '</button><small style="text-align:center;font-size:12px;color:var(--sub)">' + (r.uses.length ? '누르면 위 재료 ' + r.uses.length + '개가 재고에서 줄고 기록에 남아요' : '재고에서 쓰는 재료가 없어요') + '</small></div>';
+  const canCook = !r.cooked;
+  h += '<div class="stack" style="gap:6px;margin-top:4px"><button class="pill acc" data-act="cooked" style="justify-content:center;min-height:48px;border-radius:24px;font-size:15px"' + (canCook ? '' : ' disabled') + '>' + (r.cooked ? '재고에 반영했어요' : '다 만들었어요') + '</button><small style="text-align:center;font-size:12px;color:var(--sub)">' + (r.uses.length ? '누르면 위 재료 ' + r.uses.length + '개가 재고에서 줄고, 해먹은 요리에 남아요' : '누르면 해먹은 요리에 남아요') + '</small></div>';
   h += '</div></div>';
   el.innerHTML = h;
 }
@@ -1072,7 +1296,8 @@ async function cooked() {
       else { await itemRef(it.id).set(Object.assign(cleanItem(it), { qty: u.after.slice(0, 20) })); evs.push(evOf('eat', it, it.qty, u.after.slice(0, 20), '레시피: ' + r.name)); }
     }
     await logEvents(evs);
-    r.cooked = true; toast('재고에 반영했어요'); go('home');
+    await addMeal({ name: r.name, uses: r.uses.map((u) => u.name), icons: r.uses.slice(0, 2).map((u) => u.icon), kcal: r.kcal, from: 'recipe' });
+    r.cooked = true; toast('해먹은 요리에 남겼어요'); go('meals');
   } catch (e) { toast('반영하지 못했어요. 다시 눌러 주세요.'); render(); }
 }
 
@@ -1084,10 +1309,12 @@ async function backup() {
     const evSnap = await S.db.collection('events').get();
     const events = {}; for (const d of evSnap.docs) events[d.id] = (d.data() || {}).list || [];
     const chatSnap = await S.db.doc('chat/main').get();
+    const mealSnap = await S.db.doc('meals/log').get();
     const data = {
       app: 'pantry-manager', format: 1, exportedAt: new Date().toISOString(),
       items: S.items.map((it) => Object.assign({ id: it.id }, cleanItem(it))),
       events: events,
+      meals: mealSnap.exists ? ((mealSnap.data() || {}).list || []) : [],
       chat: chatSnap.exists ? ((chatSnap.data() || {}).messages || []) : []
     };
     const r = await S.dl.save({ filename: '냉파-백업-' + todayStr() + '.json', data: JSON.stringify(data, null, 2) });
@@ -1114,13 +1341,20 @@ document.addEventListener('click', (ev) => {
   if (t.dataset.q) { S.q = t.dataset.q; $('q').value = S.q; renderSearch(); return; }
   if (t.dataset.say) { send(t.dataset.say); return; }
   if (t.dataset.ask) { if (!S.sample) return; $('msg').value = t.dataset.ask + ' '; syncSend(); go('chat'); setTimeout(() => $('msg').focus(), 60); return; }
+  if (t.dataset.ing) { openIdeas(t.dataset.ing); return; }
+  if (t.dataset.idea !== undefined) { openIdea(Number(t.dataset.idea)); return; }
   const a = t.dataset.act;
   if (a === 'dice') dice();
+  else if (a === 'recipe-back') go(S.recipeFrom === 'ideas' && S.ideaItem ? 'ideas' : S.recipeFrom === 'chat' ? 'chat' : 'home');
+  else if (a === 'ideas-back') { if (history.length > 1) history.back(); else go('all'); }
+  else if (a === 'more-ideas') genIdeas(S.ideaItem, true);
+  else if (a === 'ideas-retry') genIdeas(S.ideaItem, (S.ideas[S.ideaItem] || {}).list && S.ideas[S.ideaItem].list.length > 0);
+  else if (a === 'del-meal') { const id = t.dataset.id; if (S.delArmed !== id) { S.delArmed = id; toast('한 번 더 누르면 지워요'); renderMeals(); setTimeout(() => { if (S.delArmed === id) { S.delArmed = null; if (S.view === 'meals') renderMeals(); } }, 3000); return; } S.delArmed = null; delMeal(id).then(() => toast('지웠어요')).catch(() => toast('지우지 못했어요')); }
   else if (a === 'backup') backup();
   else if (a === 'cooked') cooked();
   else if (a === 'pick') $('file').click();
   else if (a === 'toggle' || a === 'accept' || a === 'undo') widgetAct(a, t.dataset.mid, t.dataset.wid, Number(t.dataset.i));
-  else if (a === 'open-recipe') { const m = S.chat.find((x) => x.id === t.dataset.mid); if (m && m.recipe) { S.recipe = toRecipe(m.recipe); go('recipe'); } }
+  else if (a === 'open-recipe') { const m = S.chat.find((x) => x.id === t.dataset.mid); if (m && m.recipe) { S.recipe = toRecipe(m.recipe); S.recipeFrom = 'chat'; go('recipe'); } }
 });
 $('composer').addEventListener('submit', (e) => {
   e.preventDefault();
