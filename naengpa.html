@@ -462,7 +462,7 @@ const toast = (t) => { const el = $('toast'); el.textContent = t; el.hidden = fa
 const S = {
   view: 'home', items: [], itemsLoaded: false, months: {}, chat: [], live: null, busy: false,
   allMode: 'cat', allSel: new Set(), q: '', f: null, recipe: null, recipeBusy: false, recipeFrom: 'home', pendingImage: null,
-  ideas: {}, ideaItem: null, meals: [], mealsLoaded: false, delArmed: null,
+  ideas: {}, ideaItem: null, ideasFrom: 'all', meals: [], mealsLoaded: false, delArmed: null,
   db: null, sample: null, caps: null, ctl: null, clearArmed: false
 };
 const ERR = {
@@ -1170,6 +1170,7 @@ async function genIdeas(id, more) {
 function openIdeas(id) {
   const it = S.items.find((x) => x.id === id); if (!it) return;
   S.ideaItem = id;
+  if (S.view === 'all' || S.view === 'search') S.ideasFrom = S.view;
   go('ideas');
   if (!S.ideas[id] || (!S.ideas[id].list.length && !S.ideas[id].busy)) genIdeas(id);
 }
@@ -1346,7 +1347,7 @@ document.addEventListener('click', (ev) => {
   const a = t.dataset.act;
   if (a === 'dice') dice();
   else if (a === 'recipe-back') go(S.recipeFrom === 'ideas' && S.ideaItem ? 'ideas' : S.recipeFrom === 'chat' ? 'chat' : 'home');
-  else if (a === 'ideas-back') { if (history.length > 1) history.back(); else go('all'); }
+  else if (a === 'ideas-back') go(S.ideasFrom || 'all');
   else if (a === 'more-ideas') genIdeas(S.ideaItem, true);
   else if (a === 'ideas-retry') genIdeas(S.ideaItem, (S.ideas[S.ideaItem] || {}).list && S.ideas[S.ideaItem].list.length > 0);
   else if (a === 'del-meal') { const id = t.dataset.id; if (S.delArmed !== id) { S.delArmed = id; toast('한 번 더 누르면 지워요'); renderMeals(); setTimeout(() => { if (S.delArmed === id) { S.delArmed = null; if (S.view === 'meals') renderMeals(); } }, 3000); return; } S.delArmed = null; delMeal(id).then(() => toast('지웠어요')).catch(() => toast('지우지 못했어요')); }
