@@ -22,8 +22,9 @@
 
 | 경로 | 문서 하나 | 필드 |
 | --- | --- | --- |
-| `items/{id}` | 지금 있는 재료 하나 | `name`, `memo`, `cat`, `icon`, `loc`, `qty`, `due`, `bought`, `addedAt` |
+| `items/{id}` | 지금 있는 재료 하나 | `name`, `memo`, `cat`, `icon`, `loc`, `qty`, `due`, `bought`, `addedAt`, `staple`(상비 재료면 true: 기한 경고에서 빠지고 요리해도 양이 줄지 않음) |
 | `events/{YYYY-MM}` | 그 달의 기록 | `list`: `{id, ts, kind, itemId, name, icon, from, to}` 배열 |
+| `kitchen/main` | 우리 집 주방 장비 | `tools`: 문자열 배열(화구 수·용량은 이름에 함께, 예: "하이라이트 2구"). 추천은 이 장비로 만들 수 있는 요리만 고른다 |
 | `meals/log` | 해먹은 요리 | `list`: `{id, ts, name, uses, icons, kcal, from}` 배열(최근 300개). 메뉴 추천 때 최근 2주치를 보고 겹치지 않게 고른다 |
 | `chat/main` | 앱 안 대화 | `messages` 배열(최근 60개) |
 
@@ -45,4 +46,4 @@
 
 ## 백업에서 복원
 
-사용자가 앱의 백업 파일(`냉파-백업-YYYY-MM-DD.json`)을 주면: `items` 배열은 각 `id`로 `items/{id}`에, `events` 객체는 키(월)별로 `events/{월}`의 `list`에, `meals` 배열은 `meals/log`의 `list`에, `chat`은 `chat/main`의 `messages`에 쓴다. 기존 데이터를 덮기 전에 사용자에게 확인받는다.
+사용자가 앱의 백업 파일(`냉파-백업-YYYY-MM-DD.json`)을 주면: `items` 배열은 각 `id`로 `items/{id}`에, `events` 객체는 키(월)별로 `events/{월}`의 `list`에, `meals` 배열은 `meals/log`의 `list`에, `kitchen` 배열은 `kitchen/main`의 `tools`에, `chat`은 `chat/main`의 `messages`에 쓴다. 기존 데이터를 덮기 전에 사용자에게 확인받는다.

@@ -166,6 +166,26 @@ a { color: inherit; }
 .ichip .q { flex: none; font-size: 12px; color: var(--mute); white-space: nowrap; }
 .ichip .sep { flex: none; width: 1px; height: 12px; background: var(--line); }
 .ichip .d { flex: none; font-size: 12px; white-space: nowrap; }
+.ichip .st { flex: none; font-size: 11px; color: var(--faint); }
+.st-h { display: flex; align-items: center; gap: 6px; margin: 8px 2px 2px; font-size: 12px; color: var(--faint); }
+.st-h::after { content: ""; flex: 1; height: 1px; background: var(--hair); }
+.seas { display: flex; flex-wrap: wrap; gap: 6px; padding: 12px; }
+.seas .ichip { height: 32px; }
+.seas .ichip .q { color: var(--sub); }
+.miss { padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; }
+.miss .l { display: flex; flex-wrap: wrap; gap: 6px; }
+.miss .l span { display: inline-flex; align-items: center; height: 28px; padding: 0 10px; border-radius: 14px; border: 1px dashed var(--line); font-size: 13px; color: var(--chip-ink); }
+.miss small { font-size: 12px; color: var(--mute); }
+.kit { padding: 4px 0; }
+.kit .krow { display: flex; align-items: center; gap: 10px; min-height: 50px; padding: 0 8px 0 14px; }
+.kit .krow + .krow { border-top: 1px solid var(--hair); }
+.kit .krow .n { flex: 1; min-width: 0; font-size: 15px; }
+.kit .krow .del { flex: none; width: 34px; height: 34px; border: 0; border-radius: 17px; background: none; color: var(--faint); display: flex; align-items: center; justify-content: center; padding: 0; }
+.kadd { display: flex; gap: 8px; }
+.kadd input { flex: 1; min-width: 0; height: 44px; padding: 0 14px; border: 1px solid var(--line); border-radius: 22px; background: var(--card); font: inherit; font-size: 15px; color: var(--ink); }
+.kadd button { flex: none; height: 44px; padding: 0 16px; border: 0; border-radius: 22px; background: var(--ink); color: var(--card); font: inherit; font-size: 14px; font-weight: 600; }
+.kadd button[disabled] { opacity: .35; }
+.note { margin: 0; padding: 0 4px; font-size: 12.5px; line-height: 1.6; color: var(--mute); }
 button.ichip { font: inherit; color: inherit; cursor: pointer; text-align: left; }
 button.ichip:active, button.row:active, .idea:active { background: var(--hair); }
 
@@ -380,6 +400,14 @@ mark { background: transparent; color: var(--accent); font-weight: 700; }
     <div id="ideas-body" class="stack" style="gap:14px"></div>
   </section>
 
+  <section id="v-kitchen" class="view" aria-label="우리 집 주방" hidden>
+    <header class="top">
+      <button class="back" data-go="home" aria-label="홈으로"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <h1>우리 집 주방</h1>
+    </header>
+    <div id="kitchen-body" class="stack" style="gap:16px"></div>
+  </section>
+
   <section id="v-meals" class="view" aria-label="해먹은 요리" hidden style="padding-bottom:160px">
     <header class="top">
       <button class="back" data-go="home" aria-label="홈으로"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
@@ -445,7 +473,8 @@ const ago = (d) => d === -1 ? '어제' : d > -14 ? (-d) + '일 전' : Math.floor
 const dl = (d) => d == null ? '기한 없음' : d < 0 ? ago(d) + ' 지남' : d === 0 ? '오늘까지' : d === 1 ? '내일까지' : d > 60 ? Math.round(d / 30) + '개월 남음' : d + '일 남음';
 const ds = (d) => d == null ? '—' : d < 0 ? ago(d) : d === 0 ? '오늘' : d === 1 ? '내일' : d > 60 ? Math.round(d / 30) + '개월' : d + '일';
 const dcls = (d) => d == null ? 'd-mute' : d <= 1 ? 'd-red' : d <= 3 ? 'd-ink' : 'd-mute';
-const sortKey = (it) => { const d = daysUntil(it.due); return d == null ? 99999 : d; };
+const dueD = (it) => it && it.staple ? null : daysUntil(it && it.due);
+const sortKey = (it) => { const d = dueD(it); return d == null ? 99999 : d; };
 const iconOf = (it) => ICONS[it.icon] ? it.icon : (CAT[it.cat] || CAT.etc).icon;
 const icon = (kind, size) => '<svg class="ico" width="' + size + '" height="' + size + '" viewBox="0 0 48 48" aria-hidden="true">' + (ICONS[kind] || ICONS.jar) + '</svg>';
 const locIcon = (loc, size) => {
@@ -462,7 +491,7 @@ const toast = (t) => { const el = $('toast'); el.textContent = t; el.hidden = fa
 const S = {
   view: 'home', items: [], itemsLoaded: false, months: {}, chat: [], live: null, busy: false,
   allMode: 'cat', allSel: new Set(), q: '', f: null, recipe: null, recipeBusy: false, recipeFrom: 'home', pendingImage: null,
-  ideas: {}, ideaItem: null, ideasFrom: 'all', meals: [], mealsLoaded: false, delArmed: null,
+  ideas: {}, ideaItem: null, ideasFrom: 'all', kitchen: [], kitchenLoaded: false, meals: [], mealsLoaded: false, delArmed: null,
   db: null, sample: null, caps: null, ctl: null, clearArmed: false
 };
 const ERR = {
@@ -483,7 +512,7 @@ const errText = (e) => ERR[e && e.code] || '연결이 끊겼어요. 다시 보�
 let chain = Promise.resolve();
 const serial = (fn) => { const p = chain.then(fn, fn); chain = p.catch(() => {}); return p; };
 const itemRef = (id) => S.db.doc('items/' + id);
-const cleanItem = (it) => { const o = {}; for (const k of ['name', 'memo', 'cat', 'icon', 'loc', 'qty', 'due', 'bought', 'addedAt']) if (it[k] !== undefined) o[k] = it[k]; return o; };
+const cleanItem = (it) => { const o = {}; for (const k of ['name', 'memo', 'cat', 'icon', 'loc', 'qty', 'due', 'bought', 'addedAt', 'staple']) if (it[k] !== undefined) o[k] = it[k]; return o; };
 async function logEvents(evs) {
   if (!evs.length) return;
   const byMonth = {};
@@ -539,7 +568,8 @@ function normalizeNew(r) {
     qty: String(r.qty || '').trim().slice(0, 20) || '1개',
     due: parseYmd(r.due) ? ymd(parseYmd(r.due)) : null,
     bought: parseYmd(r.bought) ? ymd(parseYmd(r.bought)) : todayStr(),
-    addedAt: Date.now()
+    addedAt: Date.now(),
+    staple: r.staple ? true : undefined
   };
 }
 async function undoChanges(changes) {
@@ -564,6 +594,10 @@ function subscribe() {
       render();
     }, () => {});
   }
+  S.db.doc('kitchen/main').onSnapshot((snap) => {
+    S.kitchen = snap.exists ? (snap.data().tools || []) : [];
+    S.kitchenLoaded = true; render();
+  }, () => {});
   S.db.doc('meals/log').onSnapshot((snap) => {
     S.meals = snap.exists ? (snap.data().list || []) : [];
     S.mealsLoaded = true; render();
@@ -581,7 +615,7 @@ async function saveChat(msgs) {
 function showBanner(t) { const b = $('banner'); b.textContent = t; b.hidden = false; }
 
 // ---------- routing ----------
-const VIEWS = ['home', 'all', 'log', 'search', 'chat', 'recipe', 'ideas', 'meals'];
+const VIEWS = ['home', 'all', 'log', 'search', 'chat', 'recipe', 'ideas', 'meals', 'kitchen'];
 function go(v) { if (!VIEWS.includes(v)) v = 'home'; if (location.hash.slice(1) !== (v === 'home' ? '' : v)) { location.hash = v === 'home' ? '' : v; } else show(v); }
 function show(v) {
   S.view = v;
@@ -611,6 +645,7 @@ function render() {
   else if (v === 'recipe') renderRecipe();
   else if (v === 'ideas') renderIdeas();
   else if (v === 'meals') renderMeals();
+  else if (v === 'kitchen') renderKitchen();
 }
 function greet() {
   const h = new Date().getHours();
@@ -620,8 +655,8 @@ function allEvents() { return Object.values(S.months).flat().sort((a, b) => b.ts
 
 function renderHome() {
   const d = new Date();
-  const over = S.items.filter((it) => { const k = daysUntil(it.due); return k != null && k < 0; }).length;
-  const soon = S.items.filter((it) => { const k = daysUntil(it.due); return k != null && k >= 0 && k <= 1; }).length;
+  const over = S.items.filter((it) => { const k = dueD(it); return k != null && k < 0; }).length;
+  const soon = S.items.filter((it) => { const k = dueD(it); return k != null && k >= 0 && k <= 1; }).length;
   $('today-line').textContent = soon ? '오늘·내일까지 ' + soon + '개' : '';
   $('today-line').hidden = !soon;
   const el = $('home-body');
@@ -648,13 +683,13 @@ function renderHome() {
     if (!g.list.length) {
       h += '<div class="top-item" style="cursor:default"><span class="tile" style="opacity:.35">' + icon(g.c.icon, 30) + '</span><span class="d d-mute" style="flex:1">비어 있어요</span></div>';
     } else {
-      const t = g.list[0], td = daysUntil(t.due);
+      const t = g.list[0], td = dueD(t);
       const next = g.list.slice(1, 3);
       const more = g.list.length - 1 - next.length;
       h += '<button class="top-item" data-cat="' + id + '"><span class="tile' + (td != null && td < 0 ? ' faded' : '') + '">' + icon(iconOf(t), 30) + '</span><span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span class="n">' + esc(t.name) + '</span><span class="d ' + dcls(td) + '">' + dl(td) + '</span></span></button>';
       if (next.length) {
         h += '<div class="rest">';
-        for (const it of next) { const dd = daysUntil(it.due); h += '<button class="rest-row" data-cat="' + id + '"><span class="' + (dd != null && dd < 0 ? 'faded' : '') + '" style="line-height:0">' + icon(iconOf(it), 20) + '</span>' + '<span class="n">' + esc(it.name) + '</span><span class="d ' + dcls(dd) + '">' + ds(dd) + '</span></button>'; }
+        for (const it of next) { const dd = dueD(it); h += '<button class="rest-row" data-cat="' + id + '"><span class="' + (dd != null && dd < 0 ? 'faded' : '') + '" style="line-height:0">' + icon(iconOf(it), 20) + '</span>' + '<span class="n">' + esc(it.name) + '</span><span class="d ' + dcls(dd) + '">' + ds(dd) + '</span></button>'; }
         if (more > 0) h += '<button class="more" data-cat="' + id + '">외 ' + more + '개</button>';
         h += '</div>';
       }
@@ -666,8 +701,9 @@ function renderHome() {
   h += '<section class="card calm" aria-label="그 밖의 종류">';
   for (const g of minor) {
     if (!g.list.length) { h += '<div class="calm-row"><span class="bub" style="opacity:.4">' + icon(g.c.icon, 18) + '</span><span class="tx"><span class="n" style="color:var(--mute);font-weight:400">' + esc(g.c.name) + '</span><span class="pv">비어 있어요</span></span></div>'; continue; }
-    const shown = g.list.slice(0, 4);
-    const pv = shown.map((it) => { const d = daysUntil(it.due); return d != null && d <= 1 ? '<em>' + esc(it.name) + '</em>' : esc(it.name); }).join(', ') + (g.list.length > shown.length ? ' 외 ' + (g.list.length - shown.length) : '');
+    const fresh = g.list.filter((it) => !it.staple), nst = g.list.length - fresh.length;
+    const shown = fresh.slice(0, 4);
+    const pv = shown.length ? shown.map((it) => { const d = dueD(it); return d != null && d <= 1 ? '<em>' + esc(it.name) + '</em>' : esc(it.name); }).join(', ') + (fresh.length > shown.length ? ' 외 ' + (fresh.length - shown.length) : '') + (nst ? ' · 상비 ' + nst : '') : '상비 ' + nst + '개';
     h += '<button class="calm-row" data-cat="' + g.c.id + '"><span class="bub">' + icon(iconOf(g.list[0]), 18) + '</span><span class="tx"><span class="n">' + esc(g.c.name) + '</span><span class="pv">' + pv + '</span></span><span class="c">' + g.list.length + '</span>' + CHEV + '</button>';
   }
   h += '</section>';
@@ -678,7 +714,9 @@ function renderHome() {
   const weekMeals = S.meals.filter((m) => Date.now() - m.ts < 7 * 864e5).length;
   h += '<button data-go="meals"><span class="mi"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h16a8 8 0 0 1-16 0z"/><path d="M3 20h18"/><path d="M9 8c-.8-1 .8-2 0-3M13 8c-.8-1 .8-2 0-3"/></svg></span><span class="t"><b>해먹은 요리</b><small>' + (weekMeals ? '이번 주 ' + weekMeals + '번' : '아직 없어요') + '</small></span>' + CHEV + '</button>';
   h += '</nav>';
-  if (S.dl) h += '<button class="backup" data-act="backup"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10.5l5 5 5-5M5 19.5h14"/></svg><span>백업 파일 받기</span><small>재고·기록·요리·대화를 파일 하나로</small></button>';
+  const kt = S.kitchen.length ? S.kitchen.join(', ') : '장비를 알려 주면 거기에 맞춰 추천해요';
+  h += '<section class="card calm" aria-label="우리 집 주방"><button class="calm-row" data-go="kitchen"><span class="bub"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="9" cy="9.5" r="2"/><circle cx="15" cy="9.5" r="2"/><path d="M8 16h8"/></svg></span><span class="tx"><span class="n">우리 집 주방</span><span class="pv">' + esc(kt) + '</span></span>' + CHEV + '</button></section>';
+  if (S.dl) h += '<button class="backup" data-act="backup"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10.5l5 5 5-5M5 19.5h14"/></svg><span>백업 파일 받기</span><small>재고·기록·요리·주방·대화를 파일 하나로</small></button>';
   el.innerHTML = h;
   fitGrid();
 }
@@ -731,12 +769,14 @@ function renderAll() {
   h += '<div class="subs" role="tablist" aria-label="세부 항목"><button class="sub-btn" data-sub="" aria-pressed="' + (sel.size === 0) + '">전체</button>' + counted.map((g) => '<button class="sub-btn" data-sub="' + esc(g.id) + '" aria-pressed="' + sel.has(g.id) + '">' + (g.loc ? locIcon(g.loc, 12) : '') + esc(g.name) + ' <span>' + g.list.length + '</span></button>').join('') + '</div>';
   for (const g of counted) {
     if (sel.size && !sel.has(g.id)) continue;
-    const list = g.list;
+    const list = S.allMode === 'cat' ? g.list.filter((it) => !it.staple).concat(g.list.filter((it) => it.staple)) : g.list;
+    const nFresh = list.filter((it) => !it.staple).length;
     h += '<section class="group" aria-label="' + esc(g.name) + '"><div class="group-h">' + (g.loc ? locIcon(g.loc, 15) : '') + '<h2' + (g.red ? ' class="r"' : '') + '>' + esc(g.name) + '</h2><span>' + list.length + '</span></div><div class="chips">';
-    for (const it of list) {
-      const d = daysUntil(it.due);
-      h += '<button class="ichip" data-ing="' + esc(it.id) + '" aria-label="' + esc(it.name + ', ' + (it.qty || '') + ', ' + (it.loc || '') + ', ' + dl(d) + '. 이 재료로 만들 요리 보기') + '"><span style="line-height:0">' + icon(iconOf(it), 18) + '</span><span class="n' + (d != null && d < 0 ? ' gone' : '') + '">' + esc(it.name) + '</span><span class="q">' + esc(it.qty || '') + '</span><span class="sep" aria-hidden="true"></span><span class="d ' + dcls(d) + '">' + ds(d) + '</span>' + (S.allMode === 'loc' ? '' : locIcon(it.loc, 13)) + '</button>';
-    }
+    list.forEach((it, k) => {
+      if (S.allMode === 'cat' && it.staple && k === nFresh) h += '</div><div class="st-h">상비 ' + (list.length - nFresh) + '</div><div class="chips">';
+      const d = dueD(it);
+      h += '<button class="ichip" data-ing="' + esc(it.id) + '" aria-label="' + esc(it.name + ', ' + (it.qty || '') + ', ' + (it.loc || '') + ', ' + dl(d) + '. 이 재료로 만들 요리 보기') + '"><span style="line-height:0">' + icon(iconOf(it), 18) + '</span><span class="n' + (d != null && d < 0 ? ' gone' : '') + '">' + esc(it.name) + '</span><span class="q">' + esc(it.qty || '') + '</span><span class="sep" aria-hidden="true"></span>' + (it.staple ? '<span class="st">상비</span>' : '<span class="d ' + dcls(d) + '">' + ds(d) + '</span>') + (S.allMode === 'loc' ? '' : locIcon(it.loc, 13)) + '</button>';
+    });
     h += '</div></section>';
   }
   el.innerHTML = h;
@@ -771,9 +811,9 @@ function renderLog() {
 }
 
 const FILTERS = [
-  { id: 'soon', t: '오늘·내일', test: (it) => { const d = daysUntil(it.due); return d != null && d >= 0 && d <= 1; } },
-  { id: 'over', t: '기한 지남', test: (it) => { const d = daysUntil(it.due); return d != null && d < 0; } },
-  { id: 'week', t: '이번 주', test: (it) => { const d = daysUntil(it.due); return d != null && d >= 0 && d <= 7; } },
+  { id: 'soon', t: '오늘·내일', test: (it) => { const d = dueD(it); return d != null && d >= 0 && d <= 1; } },
+  { id: 'over', t: '기한 지남', test: (it) => { const d = dueD(it); return d != null && d < 0; } },
+  { id: 'week', t: '이번 주', test: (it) => { const d = dueD(it); return d != null && d >= 0 && d <= 7; } },
   { id: 'frz', t: '냉동실', test: (it) => it.loc === '냉동' },
   { id: 'room', t: '실온', test: (it) => it.loc === '실온' }
 ];
@@ -795,10 +835,10 @@ function renderSearch() {
   }
   let h = '<section class="stack" style="gap:6px"><h2 class="h2">재고 ' + list.length + '</h2><div class="card rows">';
   for (const it of list) {
-    const d = daysUntil(it.due);
+    const d = dueD(it);
     const k = q ? it.name.indexOf(q) : -1;
     const nm = k >= 0 ? esc(it.name.slice(0, k)) + '<mark>' + esc(q) + '</mark>' + esc(it.name.slice(k + q.length)) : esc(it.name);
-    h += '<button class="row" data-ing="' + esc(it.id) + '"><span class="tile' + (d != null && d < 0 ? ' faded' : '') + '">' + icon(iconOf(it), 22) + '</span><span class="mid"><span class="l1"><span class="n">' + nm + '</span><span class="qchip">' + esc(it.qty || '') + '</span></span><span class="l2">' + locIcon(it.loc, 13) + esc(it.loc || '냉장') + (it.memo ? ', ' + esc(it.memo) : '') + (it.bought ? ', ' + mdText(it.bought) + ' 삼' : '') + '</span></span><span class="d ' + dcls(d) + '">' + dl(d) + '</span></button>';
+    h += '<button class="row" data-ing="' + esc(it.id) + '"><span class="tile' + (d != null && d < 0 ? ' faded' : '') + '">' + icon(iconOf(it), 22) + '</span><span class="mid"><span class="l1"><span class="n">' + nm + '</span><span class="qchip">' + esc(it.qty || '') + '</span></span><span class="l2">' + locIcon(it.loc, 13) + esc(it.loc || '냉장') + (it.memo ? ', ' + esc(it.memo) : '') + (it.bought ? ', ' + mdText(it.bought) + ' 삼' : '') + '</span></span><span class="d ' + dcls(d) + '">' + (it.staple ? '상비' : dl(d)) + '</span></button>';
   }
   h += '</div></section>';
   el.innerHTML = h;
@@ -838,7 +878,7 @@ function widget(m, w) {
     const n = w.items.filter((_, i) => !off.has(i)).length;
     let h = '<div class="card" role="group" aria-label="넣을 재료 확인">';
     w.items.forEach((it, i) => {
-      const isOff = off.has(i), d = daysUntil(it.due);
+      const isOff = off.has(i), d = dueD(it);
       const meta = (it.loc || '냉장') + (it.due ? ', ' + mdText(it.due) + '까지' + (it.dueGuess ? ' (추정)' : '') : '');
       h += '<div class="w-row' + (isOff ? ' off' : '') + '">';
       if (w.state === 'pending') h += '<button class="ck" data-act="toggle" data-mid="' + mid + '" data-wid="' + wid + '" data-i="' + i + '" role="checkbox" aria-checked="' + !isOff + '" aria-label="' + esc(it.name) + (isOff ? ' 넣기' : ' 빼기') + '">' + (isOff ? CHECK_OFF : CHECK_ON) + '</button>';
@@ -864,14 +904,19 @@ function widget(m, w) {
 
 function inventoryText() {
   const t = todayStr();
-  const lines = S.items.slice().sort((a, b) => sortKey(a) - sortKey(b)).map((it) => [it.id, it.name, it.memo || '', it.qty, it.loc, it.cat, it.due || '기한없음', it.bought || ''].join(' | '));
-  return '오늘: ' + t + ' (' + WD[new Date().getDay()] + ')\n재고 (id | 이름 | 메모 | 남은 양 | 보관 | 종류 | 기한 | 산 날):\n' + (lines.length ? lines.join('\n') : '(비어 있음)');
+  const lines = S.items.slice().sort((a, b) => sortKey(a) - sortKey(b)).map((it) => [it.id, it.name, it.memo || '', it.qty, it.loc, it.cat, it.staple ? '상비' : (it.due || '기한없음'), it.bought || ''].join(' | '));
+  return '오늘: ' + t + ' (' + WD[new Date().getDay()] + ')\n재고 (id | 이름 | 메모 | 남은 양 | 보관 | 종류 | 기한(상비면 "상비") | 산 날):\n' + (lines.length ? lines.join('\n') : '(비어 있음)');
 }
 function mealsText(days) {
   const cut = Date.now() - (days || 14) * 864e5;
   const list = S.meals.filter((m) => m.ts >= cut).sort((a, b) => b.ts - a.ts).slice(0, 20);
   return '최근 ' + (days || 14) + '일 동안 해먹은 요리 (날짜 | 메뉴 | 쓴 재료):\n' + (list.length ? list.map((m) => [ymd(new Date(m.ts)), m.name, (m.uses || []).join(', ')].join(' | ')).join('\n') : '(없음)');
 }
+function kitchenText() {
+  if (!S.kitchen.length) return '조리 장비: 아직 안 알려 줌. 흔한 가정용 화구 하나와 전자레인지 정도만 있다고 봐.';
+  return '조리 장비 (이것만 있음. 프라이팬, 냄비, 칼, 도마 같은 기본 도구는 있음): ' + S.kitchen.join(', ') + '\n목록에 없는 장비가 꼭 필요한 요리(예: 오븐이 없으면 오븐 요리)는 고르지 마. 화구 수와 용량도 지켜. 만드는 법에는 어떤 장비로 몇 도, 몇 분인지 구체적으로 써.';
+}
+const SEASON = '양념도 재고에 있는 것만 써. 물만 있다고 봐도 돼. 재고에 없는 재료가 꼭 필요하면 missing에 넣되, 되도록 재고만으로 되는 메뉴를 골라. 양념처럼 조금 쓰는 재료는 uses에 넣고 after에는 원래 남은 양을 그대로 써.';
 const AVOID = '최근에 해먹은 요리와 같은 메뉴는 고르지 말고, 최근 사흘 안에 먹은 것과 주재료나 조리법(볶음밥, 찌개, 면 등)이 겹치는 것도 되도록 피해.';
 const RULES = () => [
   '너는 한 사람의 냉장고·냉동실·실온 재고를 관리하는 도우미야. 이 페이지가 주는 도구로만 재고를 바꿀 수 있어. 한국어로 짧고 다정하게, 1~2문장으로 답해. 마크다운, 목록 기호, 이모지는 쓰지 마.',
@@ -885,15 +930,19 @@ const RULES = () => [
   '- 종류(cat): veg(채소와 과일, 해조류 포함), meat(고기와 해산물), dairy(계란, 두부, 유제품), grain(곡물, 면, 빵, 가루), ready(간편식, 캔·즉석·냉동 조리식품), side(반찬·김치, 피클·단무지 포함), snack(간식·디저트, 떡·케이크·쿠키 등), bake(베이킹 재료, 만드는 데 쓰는 것), sauce(소스와 양념, 잼·스프레드·피넛버터처럼 바르는 것 포함), etc(기타).',
   '- 아이콘(icon)은 다음 중 가장 가까운 것 하나: ' + ICON_NAMES.join(', ') + '. 맞는 게 없으면 비워 둬.',
   '- 지난 기록(언제 샀는지, 무엇을 버렸는지)은 findEvents로 찾아.',
-  '- 레시피를 물으면 재고에서 기한이 가까운 재료를 우선 써서 메뉴를 정하고, setRecipe로 레시피 화면에 띄워. 1인분 열량과 영양성분 추정치도 함께 넣어. 답은 한두 문장으로만. ' + AVOID,
+  '- 상비(staple)는 떨어지면 또 사는 재료라서 기한을 따지지 않아. "참기름 상비로 해 줘"처럼 말하면 updateItem의 staple로 바꿔. 새로 넣는 재료가 소금, 간장, 식용유처럼 늘 두는 기본 양념이면 staple을 true로.',
+  '- "오븐 샀어", "에어프라이어 고장났어"처럼 주방 장비 얘기를 하면 setKitchen으로 장비 목록 전체를 고쳐서 보내.',
+  '- 레시피를 물으면 재고에서 기한이 가까운 재료를 우선 써서 메뉴를 정하고, setRecipe로 레시피 화면에 띄워. 1인분 열량과 영양성분 추정치도 함께 넣어. 답은 한두 문장으로만. ' + SEASON + ' ' + AVOID,
   '- "김치찌개 해먹었어"처럼 요리를 해 먹었다고 하면 logMeal로 해먹은 요리에 남겨. 쓴 재료를 다 먹었거나 줄었다고 하면 updateItem도 함께 써.',
   '- "이 레시피"는 아래의 현재 레시피를 말해. 바꿔 달라고 하면(인분, 재료, 난이도 등) 고친 전체 레시피를 setRecipe로 다시 띄워. 단순한 질문(대체 재료, 불 세기 등)에는 말로만 답해.',
   '',
   inventoryText(),
   '',
+  kitchenText(),
+  '',
   mealsText(14),
   '',
-  S.recipe ? '현재 레시피: ' + JSON.stringify({ name: S.recipe.name, minutes: S.recipe.minutes, servings: S.recipe.servings, level: S.recipe.level, uses: S.recipe.uses.map((u) => ({ id: u.id, name: u.name, use: u.use, after: u.after })), pantry: S.recipe.pantry, steps: S.recipe.steps, kcal: S.recipe.kcal, nutrition: S.recipe.nutrition }) : '현재 레시피: 없음'
+  S.recipe ? '현재 레시피: ' + JSON.stringify({ name: S.recipe.name, minutes: S.recipe.minutes, servings: S.recipe.servings, level: S.recipe.level, uses: S.recipe.uses.map((u) => ({ id: u.id, name: u.name, use: u.use, after: u.after })), missing: S.recipe.missing, tools: S.recipe.tools, steps: S.recipe.steps, kcal: S.recipe.kcal, nutrition: S.recipe.nutrition }) : '현재 레시피: 없음'
 ].join('\n');
 
 const itemSchema = {
@@ -902,7 +951,7 @@ const itemSchema = {
     name: { type: 'string', description: '브랜드와 용량을 뺀 재료 이름, 예: 프로틴 초콜릿 쿠키도우' }, memo: { type: 'string', description: '비고: 브랜드, 용량·중량 등. 예: 프롤즈, 200g' }, qty: { type: 'string', description: '남은 양, 예: 2모, 10개, 반쯤' },
     cat: { type: 'string', enum: CATS.map((c) => c.id) }, icon: { type: 'string', enum: ICON_NAMES },
     loc: { type: 'string', enum: LOCS }, due: { type: 'string', description: 'YYYY-MM-DD' },
-    dueGuess: { type: 'boolean' }, note: { type: 'string', description: '사용자에게 보여줄 짧은 안내, 없으면 비움' }, skip: { type: 'boolean', description: '처음부터 빼 둘 항목' }
+    dueGuess: { type: 'boolean' }, staple: { type: 'boolean', description: '상비 재료(늘 두는 기본 양념 등)면 true' }, note: { type: 'string', description: '사용자에게 보여줄 짧은 안내, 없으면 비움' }, skip: { type: 'boolean', description: '처음부터 빼 둘 항목' }
   },
   required: ['name', 'qty', 'cat', 'loc']
 };
@@ -924,7 +973,7 @@ function makeTools(ctx) {
     {
       name: 'updateItem',
       description: '재고에 있는 재료 하나를 고친다. action: eat(일부 먹음, qty에 남은 양), eatAll(다 먹음, 재고에서 뺌), discard(버림, 재고에서 뺌), edit(양·기한·보관·이름 수정). 결과를 돌려준다.',
-      inputSchema: { type: 'object', properties: { id: { type: 'string' }, action: { type: 'string', enum: ['eat', 'eatAll', 'discard', 'edit'] }, qty: { type: 'string' }, loc: { type: 'string', enum: LOCS }, due: { type: 'string' }, name: { type: 'string' }, memo: { type: 'string', description: '비고(브랜드, 용량 등)' } }, required: ['id', 'action'] },
+      inputSchema: { type: 'object', properties: { id: { type: 'string' }, action: { type: 'string', enum: ['eat', 'eatAll', 'discard', 'edit'] }, qty: { type: 'string' }, loc: { type: 'string', enum: LOCS }, due: { type: 'string' }, name: { type: 'string' }, memo: { type: 'string', description: '비고(브랜드, 용량 등)' }, staple: { type: 'boolean', description: '상비 재료로 표시(true) 또는 해제(false)' } }, required: ['id', 'action'] },
       execute: async (input) => {
         const it = S.items.find((x) => x.id === String(input.id));
         if (!it) throw new Error('그 id의 재료가 재고에 없어요');
@@ -944,11 +993,12 @@ function makeTools(ctx) {
         if (input.due && parseYmd(String(input.due))) patch.due = ymd(parseYmd(String(input.due)));
         if (input.name && String(input.name).trim()) patch.name = String(input.name).trim().slice(0, 40);
         if (typeof input.memo === 'string') patch.memo = input.memo.trim().slice(0, 60);
+        if (typeof input.staple === 'boolean') patch.staple = input.staple;
         if (!Object.keys(patch).length) throw new Error('바꿀 내용이 없어요');
         const after = Object.assign({}, before, patch);
         await itemRef(it.id).set(after);
         const kind = action === 'eat' && patch.qty ? 'eat' : 'edit';
-        const ev = evOf(kind, Object.assign({ id: it.id }, after), patch.qty ? it.qty : null, patch.qty || (patch.loc ? '→' + patch.loc : patch.due ? '기한 ' + mdText(patch.due) : null), ctx.src);
+        const ev = evOf(kind, Object.assign({ id: it.id }, after), patch.qty ? it.qty : null, patch.qty || (patch.loc ? '→' + patch.loc : patch.due ? '기한 ' + mdText(patch.due) : 'staple' in patch ? (patch.staple ? '상비로' : '상비 해제') : null), ctx.src);
         await logEvents([ev]);
         ctx.changes.push({ itemId: it.id, before: before, after: after, eventId: ev.id, name: after.name, icon: iconOf(after), kind: kind, from: it.qty, to: patch.qty || '' });
         return { ok: true, item: after };
@@ -974,8 +1024,9 @@ function makeTools(ctx) {
       inputSchema: { type: 'object', properties: {
         name: { type: 'string', description: '메뉴 이름' }, minutes: { type: 'number', description: '조리 시간(분)' }, servings: { type: 'string', description: '예: 1인분' }, level: { type: 'string', description: '쉬움/보통/어려움' },
         why: { type: 'string', description: '이 메뉴를 고른 이유 한 문장' },
-        uses: { type: 'array', description: '재고에서 쓰는 재료만', items: { type: 'object', properties: { id: { type: 'string', description: '재고 id' }, use: { type: 'string', description: '쓰는 양만 짧게. 예: 1팩, 2개, 반 컵, 약간. 손질법이나 문장은 넣지 마' }, after: { type: 'string', description: '요리 후 남는 양. 예: 1팩, 반쯤. 다 쓰면 빈 문자열' } }, required: ['id', 'use'] } },
-        pantry: { type: 'string', description: '재고 밖의 기본 양념과 분량만 한 줄. 예: 소금 약간, 후추 약간. 이유나 설명, 재고 id는 넣지 마' },
+        uses: { type: 'array', description: '재고에서 쓰는 재료와 양념 모두', items: { type: 'object', properties: { id: { type: 'string', description: '재고 id' }, use: { type: 'string', description: '쓰는 양만 짧게. 예: 1팩, 2개, 반 컵, 약간. 손질법이나 문장은 넣지 마' }, after: { type: 'string', description: '요리 후 남는 양. 예: 1팩, 반쯤. 다 쓰면 빈 문자열' } }, required: ['id', 'use'] } },
+        missing: { type: 'array', description: '재고에 없지만 꼭 필요한 재료. 되도록 비워 둬', items: { type: 'object', properties: { name: { type: 'string' }, use: { type: 'string', description: '양만 짧게' } }, required: ['name'] } },
+        tools: { type: 'array', items: { type: 'string' }, description: '이 요리에 쓰는 주방 장비 이름(장비 목록에 있는 것). 예: 에어프라이어' },
         steps: { type: 'array', items: { type: 'string' }, description: '만드는 법 단계' },
         kcal: { type: 'number', description: '1인분 열량 추정(kcal)' },
         nutrition: { type: 'object', description: '1인분 영양성분 추정', properties: { carbs: { type: 'number', description: '탄수화물 g' }, protein: { type: 'number', description: '단백질 g' }, fat: { type: 'number', description: '지방 g' }, sodium: { type: 'number', description: '나트륨 mg' } } }
@@ -985,6 +1036,17 @@ function makeTools(ctx) {
         if (!r.steps.length) throw new Error('steps가 비어 있어요');
         S.recipe = r; ctx.recipe = r;
         return '레시피 화면에 띄웠어요.';
+      }
+    },
+    {
+      name: 'setKitchen',
+      description: '우리 집 주방 장비 목록을 통째로 바꾼다. 화구 수나 용량은 이름에 함께 적는다. 예: ["하이라이트 2구", "전자레인지", "에어프라이어"]',
+      inputSchema: { type: 'object', properties: { tools: { type: 'array', items: { type: 'string' } } }, required: ['tools'] },
+      execute: async (input) => {
+        const tools = cleanTools(input.tools);
+        ctx.status('주방 장비를 고치는 중…');
+        await saveKitchen(tools);
+        return { ok: true, tools: tools };
       }
     },
     {
@@ -1096,13 +1158,15 @@ async function widgetAct(act, mid, wid, i) {
 // ---------- recipe ----------
 function toRecipe(r) {
   const short = (v) => String(v || '').trim().slice(0, 14);
-  const uses = (Array.isArray(r.uses) ? r.uses : []).map((u) => { const it = S.items.find((x) => x.id === String(u.id)); return it ? { id: it.id, name: it.name, icon: iconOf(it), due: it.due, use: short(u.use), after: short(u.after) } : null; }).filter(Boolean);
+  const uses = (Array.isArray(r.uses) ? r.uses : []).map((u) => { const it = S.items.find((x) => x.id === String(u.id)); return it ? { id: it.id, name: it.name, icon: iconOf(it), due: it.staple ? null : it.due, cat: it.cat, staple: !!it.staple, use: short(u.use), after: short(u.after) } : null; }).filter(Boolean);
+  const missing = (Array.isArray(r.missing) ? r.missing : []).map((m) => typeof m === 'string' ? { name: m.slice(0, 20), use: '' } : { name: String(m.name || '').slice(0, 20), use: short(m.use) }).filter((m) => m.name).slice(0, 8);
+  const tools = (Array.isArray(r.tools) ? r.tools : []).map((t) => String(t).trim().slice(0, 16)).filter(Boolean).slice(0, 3);
   const n = r.nutrition && typeof r.nutrition === 'object' ? r.nutrition : {};
   const num = (v) => { const x = Math.round(Number(v)); return isFinite(x) && x > 0 ? x : null; };
   let pantry = String(r.pantry || '');
   for (const it of S.items) if (it.id && pantry.includes(it.id)) pantry = pantry.split(it.id).join(it.name);
   pantry = pantry.replace(/\(\s*id\s+([^)]*)\)/gi, '($1)').replace(/\s{2,}/g, ' ').trim();
-  return { name: String(r.name || '오늘의 메뉴').slice(0, 40), minutes: Number(r.minutes) || null, servings: String(r.servings || '1인분'), level: String(r.level || ''), why: String(r.why || ''), uses: uses, pantry: pantry, steps: (Array.isArray(r.steps) ? r.steps : []).map(String).slice(0, 12), kcal: num(r.kcal), nutrition: { carbs: num(n.carbs), protein: num(n.protein), fat: num(n.fat), sodium: num(n.sodium) }, cooked: false };
+  return { name: String(r.name || '오늘의 메뉴').slice(0, 40), minutes: Number(r.minutes) || null, servings: String(r.servings || '1인분'), level: String(r.level || ''), why: String(r.why || ''), uses: uses, pantry: pantry, missing: missing, tools: tools, steps: (Array.isArray(r.steps) ? r.steps : []).map(String).slice(0, 12), kcal: num(r.kcal), nutrition: { carbs: num(n.carbs), protein: num(n.protein), fat: num(n.fat), sodium: num(n.sodium) }, cooked: false };
 }
 async function dice() {
   if (S.recipeBusy || !S.sample || !S.items.length) return;
@@ -1119,12 +1183,14 @@ async function genRecipe(ask) {
     const r = await S.sample.json([
       inventoryText(),
       '',
+      kitchenText(),
+      '',
       mealsText(14),
       '',
-      ask + ' 집에 흔한 기본 양념(소금, 간장, 설탕, 식용유, 참기름, 마늘 등)은 있다고 봐도 돼. ' + AVOID,
+      ask + ' ' + SEASON + ' ' + AVOID,
       '다음 JSON 하나만 답해:',
-      '{"name":"메뉴 이름","minutes":20,"servings":"1인분","level":"쉬움","why":"왜 이 메뉴인지 한 문장","uses":[{"id":"재고 id","use":"쓰는 양만 짧게, 예: 1팩","after":"남는 양, 다 쓰면 빈 문자열"}],"pantry":"재고 밖 기본 양념과 분량만, 예: 소금 약간, 후추 약간","steps":["단계 문장", "..."],"kcal":520,"nutrition":{"carbs":60,"protein":30,"fat":15,"sodium":900}}',
-      'use와 after에는 양만 쓰고 손질법은 steps에 써. pantry에는 재고 id를 쓰지 마. kcal과 nutrition은 1인분 기준 추정치(g, 나트륨은 mg).'
+      '{"name":"메뉴 이름","minutes":20,"servings":"1인분","level":"쉬움","tools":["쓰는 장비"],"why":"왜 이 메뉴인지 한 문장","uses":[{"id":"재고 id","use":"쓰는 양만 짧게, 예: 1팩, 1큰술","after":"남는 양, 다 쓰면 빈 문자열"}],"missing":[{"name":"재고에 없는 재료","use":"양"}],"steps":["단계 문장", "..."],"kcal":520,"nutrition":{"carbs":60,"protein":30,"fat":15,"sodium":900}}',
+      'use와 after에는 양만 쓰고 손질법은 steps에 써. uses에는 양념도 포함해. missing은 없으면 빈 배열. kcal과 nutrition은 1인분 기준 추정치(g, 나트륨은 mg).'
     ].join('\n'), { cache: false });
     S.recipe = toRecipe(r);
   } catch (e) {
@@ -1149,15 +1215,17 @@ async function genIdeas(id, more) {
       '',
       mealsText(14),
       '',
-      '"' + it.name + '"(id ' + it.id + ')를 주재료로 만들 수 있는 1인분 요리를 5가지 골라 줘. 냉장고의 다른 재료를 적극 함께 쓰고, 기한이 가까운 재료가 있으면 우선 써. 집에 흔한 기본 양념은 있다고 봐도 돼.',
+      kitchenText(),
+      '',
+      '"' + it.name + '"(id ' + it.id + ')를 주재료로 만들 수 있는 1인분 요리를 5가지 골라 줘. 냉장고의 다른 재료를 적극 함께 쓰고, 기한이 가까운 재료가 있으면 우선 써. ' + SEASON,
       '국·찌개, 볶음, 면, 밥, 간단한 반찬처럼 조리법이 서로 겹치지 않게 다양하게. ' + AVOID + (shown.length ? ' 이미 보여준 ' + shown.join(', ') + ' 말고 새 메뉴로.' : ''),
       '다음 JSON 하나만 답해:',
-      '{"ideas":[{"name":"메뉴 이름","minutes":15,"level":"쉬움","desc":"어떤 요리인지 한 문장, 20자 안팎","uses":["재고 id", "..."]}]}',
+      '{"ideas":[{"name":"메뉴 이름","minutes":15,"level":"쉬움","tool":"주로 쓰는 장비 하나","desc":"어떤 요리인지 한 문장, 20자 안팎","uses":["재고 id", "..."]}]}',
       'uses에는 이 요리에 쓰는 재고 id를 모두 넣고, "' + it.id + '"를 꼭 포함해.'
     ].join('\n'), { cache: false, modelTier: 'quick' });
     const raw = r && Array.isArray(r.ideas) ? r.ideas : [];
     const add = raw.map((x) => ({
-      name: String(x.name || '').trim().slice(0, 30), minutes: Number(x.minutes) || null, level: String(x.level || '').slice(0, 6), desc: String(x.desc || '').trim().slice(0, 60),
+      name: String(x.name || '').trim().slice(0, 30), minutes: Number(x.minutes) || null, level: String(x.level || '').slice(0, 6), tool: String(x.tool || '').trim().slice(0, 16), desc: String(x.desc || '').trim().slice(0, 60),
       uses: [...new Set((Array.isArray(x.uses) ? x.uses : []).map(String))].filter((u) => S.items.some((y) => y.id === u))
     })).filter((x) => x.name && !shown.includes(x.name)).slice(0, 5);
     if (!add.length) throw { code: 'empty_completion' };
@@ -1179,7 +1247,7 @@ function renderIdeas() {
   const it = S.items.find((x) => x.id === S.ideaItem);
   if (!it) { $('ideas-title').textContent = '만들 수 있는 요리'; el.innerHTML = '<div class="card empty"><b>재료를 찾지 못했어요</b><p>다 먹었거나 지워진 재료예요. 전체 재고에서 다른 재료를 눌러 보세요.</p></div>'; return; }
   $('ideas-title').textContent = it.name + '(으)로';
-  const d = daysUntil(it.due);
+  const d = dueD(it);
   let h = '<div class="card ing-head"><span class="tile' + (d != null && d < 0 ? ' faded' : '') + '">' + icon(iconOf(it), 28) + '</span><span class="mid"><span class="n">' + esc(it.name) + '</span><span class="l2">' + locIcon(it.loc, 12) + esc((it.loc || '냉장') + (it.qty ? ', ' + it.qty : '')) + '</span></span><span class="d ' + dcls(d) + '">' + dl(d) + '</span></div>';
   if (!S.sample) { el.innerHTML = h + '<div class="card empty"><p>이 화면에서는 Claude를 부를 수 없어서 요리를 추천할 수 없어요.</p></div>'; return; }
   const st = S.ideas[it.id] || { list: [], busy: false, err: '' };
@@ -1188,8 +1256,8 @@ function renderIdeas() {
     h += '<div class="card rows">';
     st.list.forEach((x, i) => {
       const ings = x.uses.map((u) => S.items.find((y) => y.id === u)).filter(Boolean);
-      const others = ings.filter((y) => y.id !== it.id);
-      h += '<button class="idea" data-idea="' + i + '"><span class="mid"><span class="nm"><b>' + esc(x.name) + '</b><small>' + esc([x.minutes ? x.minutes + '분' : '', x.level].filter(Boolean).join(', ')) + '</small></span>' + (x.desc ? '<span class="x">' + esc(x.desc) + '</span>' : '') + '<span class="ings">' + (others.length ? '<span class="lead">함께 쓰는 재료</span>' : '<span class="lead">다른 재료 없이</span>') + others.slice(0, 4).map((y) => '<span>' + icon(iconOf(y), 14) + esc(y.name) + '</span>').join('') + (others.length > 4 ? '<span>외 ' + (others.length - 4) + '</span>' : '') + '</span></span>' + CHEV + '</button>';
+      const others = ings.filter((y) => y.id !== it.id && !y.staple && y.cat !== 'sauce');
+      h += '<button class="idea" data-idea="' + i + '"><span class="mid"><span class="nm"><b>' + esc(x.name) + '</b><small>' + esc([x.minutes ? x.minutes + '분' : '', x.level, x.tool].filter(Boolean).join(', ')) + '</small></span>' + (x.desc ? '<span class="x">' + esc(x.desc) + '</span>' : '') + '<span class="ings">' + (others.length ? '<span class="lead">함께 쓰는 재료</span>' : '<span class="lead">다른 재료 없이</span>') + others.slice(0, 4).map((y) => '<span>' + icon(iconOf(y), 14) + esc(y.name) + '</span>').join('') + (others.length > 4 ? '<span>외 ' + (others.length - 4) + '</span>' : '') + '</span></span>' + CHEV + '</button>';
     });
     if (st.busy) for (let k = 0; k < (st.list.length ? 2 : 4); k++) h += '<div class="idea" aria-hidden="true"><span class="mid" style="gap:8px"><span class="sk" style="width:' + (40 + (k * 17) % 30) + '%;height:14px"></span><span class="sk" style="width:' + (62 + (k * 11) % 25) + '%"></span><span class="sk" style="width:38%"></span></span></div>';
     h += '</div>';
@@ -1208,6 +1276,34 @@ function openIdea(i) {
   go('recipe');
   const names = x.uses.map((u) => { const y = S.items.find((z) => z.id === u); return y ? y.name + '(id ' + y.id + ')' : null; }).filter(Boolean);
   genRecipe('"' + x.name + '" 1인분 레시피를 자세히 써 줘. ' + (x.desc ? '어떤 요리냐면: ' + x.desc + '. ' : '') + '냉장고에서 ' + names.join(', ') + '을(를) 써. name은 "' + x.name + '" 그대로.');
+}
+
+// ---------- kitchen ----------
+const X = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+const KIT_PRESETS = ['인덕션', '하이라이트', '가스레인지', '전자레인지', '에어프라이어', '오븐', '밥솥', '전기포트', '토스터', '믹서기', '찜기'];
+function cleanTools(arr) {
+  const out = [];
+  for (const t of (Array.isArray(arr) ? arr : [])) { const v = String(t || '').trim().slice(0, 30); if (v && !out.includes(v)) out.push(v); }
+  return out.slice(0, 20);
+}
+async function saveKitchen(tools) {
+  S.kitchen = tools;
+  await serial(() => S.db.doc('kitchen/main').set({ tools: tools }));
+}
+function renderKitchen() {
+  const el = $('kitchen-body');
+  if (!S.kitchenLoaded) { el.innerHTML = '<div class="card empty"><p>불러오는 중이에요.</p></div>'; return; }
+  const has = (p) => S.kitchen.some((t) => t.startsWith(p));
+  let h = '<section class="stack" style="gap:6px"><h2 class="h2">있는 장비</h2>';
+  h += S.kitchen.length ? '<div class="card kit">' + S.kitchen.map((t, i) => '<div class="krow"><span class="n">' + esc(t) + '</span><button class="del" data-act="kit-del" data-i="' + i + '" aria-label="' + esc(t) + ' 빼기">' + X + '</button></div>').join('') + '</div>' : '<div class="card empty"><p>아직 비어 있어요. 아래에서 고르거나 직접 적어 주세요.</p></div>';
+  h += '</section>';
+  const rest = KIT_PRESETS.filter((p) => !has(p));
+  if (rest.length) h += '<section class="stack" style="gap:6px"><h2 class="h2">눌러서 추가</h2><div class="chips" style="padding:0 2px">' + rest.map((p) => '<button class="seg-btn" style="flex:none" data-act="kit-add" data-v="' + esc(p) + '">+ ' + esc(p) + '</button>').join('') + '</div></section>';
+  h += '<section class="stack" style="gap:6px"><h2 class="h2">직접 적기</h2><form class="kadd" id="kit-form" autocomplete="off"><label for="kit-in" class="sr">장비 이름</label><input id="kit-in" placeholder="예: 하이라이트 2구, 솥밥용 작은 솥 (2인분)" maxlength="30"><button type="submit">추가</button></form></section>';
+  h += '<p class="note">프라이팬, 냄비, 칼 같은 기본 도구는 있다고 보고 추천해요. 화구 수나 용량을 함께 적어 두면 거기에 맞춰요. 목록에 없는 장비가 필요한 요리는 추천하지 않아요.</p>';
+  el.innerHTML = h;
+  const f = $('kit-form');
+  f.onsubmit = (e) => { e.preventDefault(); const v = $('kit-in').value.trim(); if (!v) return; saveKitchen(cleanTools(S.kitchen.concat([v]))).catch(() => toast('저장하지 못했어요')); $('kit-in').value = ''; renderKitchen(); };
 }
 
 // ---------- meals (what I cooked) ----------
@@ -1267,23 +1363,28 @@ function renderRecipe() {
   }
   if (!r) { $('recipe-title').textContent = '레시피'; el.innerHTML = '<div class="card empty"><b>아직 고른 메뉴가 없어요</b><p>오른쪽 위 주사위를 누르면 지금 재고로 만들 수 있는 메뉴를 골라 드려요.</p></div>'; return; }
   $('recipe-title').textContent = r.name;
-  let h = '<div class="stack" style="gap:10px;padding:0 4px"><div class="pills">' + [r.minutes ? r.minutes + '분' : '', r.servings, r.level].filter(Boolean).map((t) => '<span class="mpill">' + esc(t) + '</span>').join('') + '</div>' + (r.why ? '<p class="why">' + esc(r.why) + '</p>' : '') + '</div>';
+  let h = '<div class="stack" style="gap:10px;padding:0 4px"><div class="pills">' + [r.minutes ? r.minutes + '분' : '', r.servings, r.level].concat(r.tools || []).filter(Boolean).map((t) => '<span class="mpill">' + esc(t) + '</span>').join('') + '</div>' + (r.why ? '<p class="why">' + esc(r.why) + '</p>' : '') + '</div>';
   h += '<div class="recipe-grid"><div class="col">';
   if (r.kcal || r.nutrition && (r.nutrition.carbs || r.nutrition.protein || r.nutrition.fat)) {
     const nu = r.nutrition || {};
     const cell = (label, v, unit) => '<div class="nu"><b>' + (v != null ? v + '<small>' + unit + '</small>' : '—') + '</b><span>' + label + '</span></div>';
     h += '<section class="stack" style="gap:6px"><h2 class="h2">영양 정보</h2><div class="card nutri"><div class="kcal"><b>' + (r.kcal || '—') + '</b><span>kcal</span><small>' + esc(r.servings || '1인분') + ' 기준 추정치</small></div><div class="nus">' + cell('탄수화물', nu.carbs, 'g') + cell('단백질', nu.protein, 'g') + cell('지방', nu.fat, 'g') + cell('나트륨', nu.sodium, 'mg') + '</div></div></section>';
   }
-  if (r.uses.length) {
+  const isSeas = (u) => u.staple || u.cat === 'sauce';
+  const mains = r.uses.filter((u) => !isSeas(u)), seas = r.uses.filter(isSeas);
+  if (mains.length) {
     h += '<section class="stack" style="gap:6px"><h2 class="h2">냉장고에서 쓰는 재료</h2><div class="card rows">';
-    for (const u of r.uses) { const d = daysUntil(u.due); const vague = /^(있음|많음|조금|약간)$/.test(u.after); h += '<div class="row"><span class="tile">' + icon(u.icon, 22) + '</span><span class="mid"><span class="l1"><span class="n">' + esc(u.name) + '</span></span><span class="l2">' + (vague ? (u.use ? esc(u.use) + ' 써요' : '조금 써요') : u.after ? (u.use ? esc(u.use) + ' 쓰고 ' : '') + esc(u.after) + ' 남아요' : (u.use ? esc(u.use) + ', ' : '') + '다 써요') + '</span></span><span class="d ' + dcls(d) + '">' + dl(d) + '</span></div>'; }
+    for (const u of mains) { const d = dueD(u); const vague = /^(있음|많음|조금|약간)$/.test(u.after); h += '<div class="row"><span class="tile">' + icon(u.icon, 22) + '</span><span class="mid"><span class="l1"><span class="n">' + esc(u.name) + '</span></span><span class="l2">' + (vague ? (u.use ? esc(u.use) + ' 써요' : '조금 써요') : u.after ? (u.use ? esc(u.use) + ' 쓰고 ' : '') + esc(u.after) + ' 남아요' : (u.use ? esc(u.use) + ', ' : '') + '다 써요') + '</span></span><span class="d ' + dcls(d) + '">' + dl(d) + '</span></div>'; }
     h += '</div></section>';
   }
-  if (r.pantry) h += '<section class="stack" style="gap:6px"><h2 class="h2">기본 양념</h2><p class="card para">' + esc(r.pantry) + '</p></section>';
+  if (seas.length) h += '<section class="stack" style="gap:6px"><h2 class="h2">양념</h2><div class="card seas">' + seas.map((u) => '<span class="ichip"><span style="line-height:0">' + icon(u.icon, 16) + '</span><span class="n">' + esc(u.name) + '</span>' + (u.use ? '<span class="q">' + esc(u.use) + '</span>' : '') + '</span>').join('') + '</div></section>';
+  if (r.missing && r.missing.length) h += '<section class="stack" style="gap:6px"><h2 class="h2">재고에 없는 재료</h2><div class="card miss"><div class="l">' + r.missing.map((m) => '<span>' + esc(m.name + (m.use ? ' ' + m.use : '')) + '</span>').join('') + '</div><small>장 볼 때 참고하세요. 없으면 빼고 만들어도 돼요.</small></div></section>';
+  if (r.pantry && !seas.length && !(r.missing && r.missing.length)) h += '<section class="stack" style="gap:6px"><h2 class="h2">기본 양념</h2><p class="card para">' + esc(r.pantry) + '</p></section>';
   h += '</div><div class="col">';
+  if (!S.kitchen.length) h += '<button class="card calm-row" data-go="kitchen" style="border-radius:16px"><span class="tx"><span class="n" style="font-size:13.5px">주방 장비를 알려 주면 거기에 맞춰 써 드려요</span><span class="pv">에어프라이어, 전자레인지 등</span></span>' + CHEV + '</button>';
   if (r.steps.length) h += '<section class="stack" style="gap:6px"><h2 class="h2">만드는 법</h2><ol class="card steps">' + r.steps.map((s, i) => '<li><span class="no">' + (i + 1) + '</span><span class="tx">' + esc(s) + '</span></li>').join('') + '</ol></section>';
   const canCook = !r.cooked;
-  h += '<div class="stack" style="gap:6px;margin-top:4px"><button class="pill acc" data-act="cooked" style="justify-content:center;min-height:48px;border-radius:24px;font-size:15px"' + (canCook ? '' : ' disabled') + '>' + (r.cooked ? '재고에 반영했어요' : '다 만들었어요') + '</button><small style="text-align:center;font-size:12px;color:var(--sub)">' + (r.uses.length ? '누르면 위 재료 ' + r.uses.length + '개가 재고에서 줄고, 해먹은 요리에 남아요' : '누르면 해먹은 요리에 남아요') + '</small></div>';
+  h += '<div class="stack" style="gap:6px;margin-top:4px"><button class="pill acc" data-act="cooked" style="justify-content:center;min-height:48px;border-radius:24px;font-size:15px"' + (canCook ? '' : ' disabled') + '>' + (r.cooked ? '재고에 반영했어요' : '다 만들었어요') + '</button><small style="text-align:center;font-size:12px;color:var(--sub)">' + (r.uses.filter((u) => !u.staple).length ? '누르면 쓴 재료가 재고에서 줄고, 해먹은 요리에 남아요' : '누르면 해먹은 요리에 남아요') + '</small></div>';
   h += '</div></div>';
   el.innerHTML = h;
 }
@@ -1292,7 +1393,8 @@ async function cooked() {
   try {
     const evs = [];
     for (const u of r.uses) {
-      const it = S.items.find((x) => x.id === u.id); if (!it) continue;
+      const it = S.items.find((x) => x.id === u.id); if (!it || it.staple) continue;
+      if (it.cat === 'sauce' && (!u.after || u.after === it.qty)) continue;
       if (!u.after || /다\s*써/.test(u.after)) { await itemRef(it.id).delete(); evs.push(evOf('eatAll', it, it.qty, null, '레시피: ' + r.name)); }
       else { await itemRef(it.id).set(Object.assign(cleanItem(it), { qty: u.after.slice(0, 20) })); evs.push(evOf('eat', it, it.qty, u.after.slice(0, 20), '레시피: ' + r.name)); }
     }
@@ -1311,10 +1413,12 @@ async function backup() {
     const events = {}; for (const d of evSnap.docs) events[d.id] = (d.data() || {}).list || [];
     const chatSnap = await S.db.doc('chat/main').get();
     const mealSnap = await S.db.doc('meals/log').get();
+    const kitSnap = await S.db.doc('kitchen/main').get();
     const data = {
       app: 'pantry-manager', format: 1, exportedAt: new Date().toISOString(),
       items: S.items.map((it) => Object.assign({ id: it.id }, cleanItem(it))),
       events: events,
+      kitchen: kitSnap.exists ? ((kitSnap.data() || {}).tools || []) : [],
       meals: mealSnap.exists ? ((mealSnap.data() || {}).list || []) : [],
       chat: chatSnap.exists ? ((chatSnap.data() || {}).messages || []) : []
     };
@@ -1349,6 +1453,8 @@ document.addEventListener('click', (ev) => {
   else if (a === 'recipe-back') go(S.recipeFrom === 'ideas' && S.ideaItem ? 'ideas' : S.recipeFrom === 'chat' ? 'chat' : 'home');
   else if (a === 'ideas-back') go(S.ideasFrom || 'all');
   else if (a === 'more-ideas') genIdeas(S.ideaItem, true);
+  else if (a === 'kit-add') { saveKitchen(cleanTools(S.kitchen.concat([t.dataset.v]))).catch(() => toast('저장하지 못했어요')); renderKitchen(); }
+  else if (a === 'kit-del') { const i = Number(t.dataset.i); saveKitchen(S.kitchen.filter((_, k) => k !== i)).catch(() => toast('저장하지 못했어요')); renderKitchen(); }
   else if (a === 'ideas-retry') genIdeas(S.ideaItem, (S.ideas[S.ideaItem] || {}).list && S.ideas[S.ideaItem].list.length > 0);
   else if (a === 'del-meal') { const id = t.dataset.id; if (S.delArmed !== id) { S.delArmed = id; toast('한 번 더 누르면 지워요'); renderMeals(); setTimeout(() => { if (S.delArmed === id) { S.delArmed = null; if (S.view === 'meals') renderMeals(); } }, 3000); return; } S.delArmed = null; delMeal(id).then(() => toast('지웠어요')).catch(() => toast('지우지 못했어요')); }
   else if (a === 'backup') backup();
